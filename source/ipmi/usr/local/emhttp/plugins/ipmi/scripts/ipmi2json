@@ -238,7 +238,7 @@ $board_json = [ $board =>
         [ 'raw'   => $raw,
           'auto'  => $auto,
           'full'  => $full,
-          'fans'  => $fans,
+          'fans'  => $fans
     ]
 ];
 
