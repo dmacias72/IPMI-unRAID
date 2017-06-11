@@ -37,13 +37,22 @@ function ipmi_fan_sensors($ignore=null) {
 
 /* get all fan options for fan control */
 function get_fanctrl_options(){
-    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_asrock;
-    if($board_asrock) {
+    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status;
+    if($board_status) {
         $i = 0;
+        $ii = 0;
         foreach($fansensors as $id => $fan){
             if($i > 7) break;
             if ($fan['Type'] === 'Fan'){
                 $name    = htmlspecialchars($fan['Name']);
+                if($board ==='Supermicro' && $name !== 'FANA'){
+                    $i++;
+                    if($ii == 0){
+                        $name = 'FAN1234';
+                        $ii ++;
+                    }else
+                        continue;
+                }
                 $tempid  = 'TEMP_'.$name;
                 $temp    = $fansensors[$fancfg[$tempid]];
                 $templo  = 'TEMPLO_'.$name;
