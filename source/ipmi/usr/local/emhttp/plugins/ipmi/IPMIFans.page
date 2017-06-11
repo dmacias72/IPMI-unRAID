@@ -82,7 +82,7 @@ Markdown="false"
 
 <div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span>
 
-<?if ($board_asrock !== false):?>
+<?if ($board_status):?>
     <span class="status" style="margin-top: 30px;"><input type="checkbox" id="advancedview"></span>
 <?endif;?>
 
@@ -133,7 +133,7 @@ if(is_file($log)){
 
 <script>
 $(function(){
-    <?if ($board_asrock !== false):?>
+    <?if ($board_status):?>
 
     // check if board supports ipmi
     $('#tab2').click(function() {
@@ -221,7 +221,7 @@ function clearFanLOG(){
     });
 }
 
-<?if ($board_asrock !== false):?>
+<?if ($board_status):?>
 
 function checkBoard() {
     if ("<?=$board_file_status;?>" == false) {
