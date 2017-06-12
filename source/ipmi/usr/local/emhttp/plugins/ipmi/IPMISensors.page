@@ -41,8 +41,8 @@ Markdown="false"
     </blockquote>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.4/js/jquery.tablesorter.combined.min.js" integrity="sha256-vrKUVFL6e2WKZ1sZ8oMOt3E7+x48uoubEk9qmBEGVH0=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.4/js/extras/jquery.tablesorter.pager.min.js" integrity="sha256-GEOAUtPueDbpdxe9Rtm6DSMLKi8DcQru5rAbO65dv3c=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/jquery.tablesorter.combined.min.js" integrity="sha256-Ul0fApVKRIGL7cePK/x7jd+/7nkSImsPRIc1ltPRah4=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.14/js/extras/jquery.tablesorter.pager.min.js" integrity="sha256-jkVgfYuH8sw4gTXCDEJMANM9Kf2xZLFWALNiAQ1AyZQ=" crossorigin="anonymous"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 <script>
 $(function(){
