@@ -8,6 +8,7 @@ $seld     = isset($cfg['IPMISELD']) ? htmlspecialchars($cfg['IPMISELD']) : 'disa
 $seldpoll = isset($cfg['IPMIPOLL']) ? intval($cfg['IPMIPOLL'])           : 60;
 $local    = isset($cfg['LOCAL'])    ? htmlspecialchars($cfg['LOCAL'])    : 'disable';
 $dash     = isset($cfg['DASH'])     ? htmlspecialchars($cfg['DASH'])     : 'disable';
+$loadcfg = isset($cfg['LOADCFG']) ? $cfg['LOADCFG'] : 'disable';
 
 // check running status
 $seld_run       = (intval(trim(shell_exec( "[ -f /proc/`cat /var/run/ipmiseld.pid 2> /dev/null`/exe ] && echo 1 || echo 0 2> /dev/null" ))) === 1);
