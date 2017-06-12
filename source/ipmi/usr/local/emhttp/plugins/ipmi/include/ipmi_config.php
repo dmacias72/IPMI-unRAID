@@ -5,9 +5,10 @@ $usage = <<<EOF
 
 Usage: $prog [options]
 
-  -c, --commit     commit
+  -c, --commit   commit
+  -s, --sensors   sensors config
       --debug      turn on debugging
-      --help       display this help and exit
+      --help         display this help and exit
       --version    output version information and exit
 
 
@@ -33,10 +34,10 @@ if (array_key_exists('version', $args)) {
     exit(0);
 }
 
-$arg_commit  = (array_key_exists('c', $args) || array_key_exists('commit', $args));
+$arg_commit = (array_key_exists('c', $args) || array_key_exists('commit', $args));
 $arg_sensors = (array_key_exists('s', $args) || array_key_exists('sensors', $args));
 
-$cmd_sensors = ($arg_sensors || array_key_exists('sensors', $_POST)) ? '-sensors' : '';
+$cmd_sensors = ($arg_sensors || ($_POST['config'])) ? '-sensors' : '';
 
 $config_file = "$plg_path/ipmi{$cmd_sensors}.config";
 $cmd         = "/usr/sbin/ipmi{$cmd_sensors}-config --filename=$config_file ";
@@ -71,7 +72,9 @@ if($return_var){
     $return = ['error' => $output];
 
 }else
-    $return = ['success' => true];
+    $return = [
+        'config' => file_get_contents($config_file),
+        'success' => true];
 
 echo json_encode($return);
 ?>

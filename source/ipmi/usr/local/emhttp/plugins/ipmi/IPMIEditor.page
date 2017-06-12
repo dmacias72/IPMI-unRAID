@@ -2,29 +2,24 @@ Menu="IPMI:3"
 Title="Config Editor"
 Markdown="false"
 ---
-<?
-$config_file = "$plg_path/ipmi.config";
-$ipmi_config = '';
-if($ipmi || !empty($netopts)) {
-    // Only get config if the current one is 1 hour old or more
-    if(!file_exists($config_file) || (filesize($config_file) == 0 )) {
-        $cmd = "ipmi-config --filename=$config_file --checkout $netopts";
-        shell_exec($cmd);
-    }
-    $ipmi_config = file_get_contents($config_file);
-}
-?>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/codemirror.min.css" integrity="sha256-B4lcRQIA/hXjqRxuZHImRuHmb0IT1kscrY9mYJ7FsMs=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/hint/show-hint.min.css" integrity="sha256-GttU7Ba1ZLRu9reNxZVI5T87aX1mDTcjLxhfR/clb1M=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/dialog/dialog.min.css" integrity="sha256-YJKyPh6e25gWJyCXgvzIKoFDE1i3lw9UqKwrk0h29wQ=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/codemirror.min.css" integrity="sha256-GGAcbnLrt4/AHq5cP2+2UWetYcNsQNjNMqSRStBoPLQ=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/hint/show-hint.min.css" integrity="sha256-GttU7Ba1ZLRu9reNxZVI5T87aX1mDTcjLxhfR/clb1M=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/dialog/dialog.min.css" integrity="sha256-YJKyPh6e25gWJyCXgvzIKoFDE1i3lw9UqKwrk0h29wQ=" crossorigin="anonymous" />
 <style type="text/css">
     .CodeMirror { border: 1px solid #eee; cursor: text; margin-top: 15px; margin-bottom: 10px; }
     .CodeMirror pre.CodeMirror-placeholder { color: #999; }
+    .fileTree{width:305px;max-height:150px;overflow:scroll;position:absolute;z-index:100;display:none;}
 </style>
 
 <div id="title" style="margin-top: -22px;">
     <span class="left"><img class="icon" src="/plugins/ipmi/icons/configeditor.png"> IPMI Configuration Editor</span>
 </div>
+
+<form id="autoload-form" method="POST" action="/update.php" target="progressFrame">
+    <input type="hidden" id="autoload" name="LOADCFG" value="disable" />
+    <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
+    <input type="hidden" name="#command" value="" />
+</form>
 
 <blockquote class="inline_help">
     <p>IPMI Config Editor is used to get and set configuration parameters in IPMI. In can be used to configured usernames, passwords, networking information, security, Serial-over-LAN (SOL), Platform Event Filtering (PEF), boot devices, power restoration policy, and many more configuration options.</p>
@@ -44,9 +39,20 @@ if($ipmi || !empty($netopts)) {
 </blockquote>
 
 <form id="cfgform" method="POST">
+<div style="margin-top: -10px;">
+<span class="left">
+    <select id="editfile" name="editfile">
+        <option>Select Config...</option>
+        <option>Config</option>
+        <option>Sensors</option>
+    </select>
+</span>
+<span class="status" style="margin-top: 5px;" id="load-switch"><input type="checkbox" id="autoload-switch"></span>
+</div>
 
-<textarea id="editcfg" name="ipmicfg" placeholder="Copy &amp; Paste IPMI Configuration Here." autofocus><?= htmlspecialchars($ipmi_config); ?></textarea>
-<input type="hidden" name="commit" value="1" />
+<textarea id="editcfg" name="ipmicfg" placeholder="Select IPMI Configuration above." autocomplete="" focus></textarea>
+<input type="hidden" id="commit" name="commit" value="1" />
+<input type="hidden" id="ipmiconfig" name="config" value="1" />
 <dl>
     <dt><input type="button" value="Revert" id="btnRevert" title="reset the stored IPMI config file to the existing BMC config" /></dt>
     <dd><input type="button" value="Save" id="btnSubmit" title="save IPMI configuration changes to the BMC" />
@@ -60,20 +66,47 @@ if($ipmi || !empty($netopts)) {
     <p>The Revert button resets the stored IPMI configuration file to the existing configuration loaded on the BMC.  The Save button saves IPMI configuration changes to the BMC.</p>
 </blockquote>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/codemirror.min.js" integrity="sha256-nP4BK+NXVKsqHwyv0YAYpYMGQMULLFsQAmrYhr9PUok=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/dialog/dialog.min.js" integrity="sha256-KbBuDRpfbnVjlUhzPVbdWqcaMQDwf9FjH5NGlSma2/Y=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/display/placeholder.min.js" integrity="sha256-dZ1hbx09AEbStymNkjE7umqi7DqhAtuC5cvId0603Yk=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/hint/show-hint.min.js" integrity="sha256-lOBfrUiGFzYN0fjJph7p21pyXxNNCWN8jL/jrd6VpJc=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/mode/properties/properties.min.js" integrity="sha256-sYjmbbbVaUIwHFPmA/ipJMFD64xAucwyitEVb0+8qjA=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/hint/anyword-hint.min.js" integrity="sha256-QpELQ3xE5bkkc1rdv5i7pSBPSK06rljJXh0AHKHJSjw=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/search/searchcursor.min.js" integrity="sha256-+WHQ6GVZ+En4S8tktYbST09huK+qux1Gvhqq5b9Pq+I=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.23.0/addon/search/search.min.js" integrity="sha256-jR746s3yEfafMDDa+uuOQ/9dh9KdTaSCnFDITGs0mIk=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/codemirror.min.js" integrity="sha256-UQey9E6ZZXhvoLNXvVmU5lRSbOcCZe707EBLJTtMwSc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/dialog/dialog.min.js" integrity="sha256-KbBuDRpfbnVjlUhzPVbdWqcaMQDwf9FjH5NGlSma2/Y=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/display/placeholder.min.js" integrity="sha256-dZ1hbx09AEbStymNkjE7umqi7DqhAtuC5cvId0603Yk=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/hint/show-hint.min.js" integrity="sha256-lOBfrUiGFzYN0fjJph7p21pyXxNNCWN8jL/jrd6VpJc=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/mode/properties/properties.min.js" integrity="sha256-sYjmbbbVaUIwHFPmA/ipJMFD64xAucwyitEVb0+8qjA=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/hint/anyword-hint.min.js" integrity="sha256-QpELQ3xE5bkkc1rdv5i7pSBPSK06rljJXh0AHKHJSjw=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/search/searchcursor.min.js" integrity="sha256-+WHQ6GVZ+En4S8tktYbST09huK+qux1Gvhqq5b9Pq+I=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.26.0/addon/search/search.min.js" integrity="sha256-oKtklaGHqf1dRh6gRh62esFuYOvcEDJ+PO7/gp6fK+I=" crossorigin="anonymous"></script>
 
 <script>
 $(function(){
+    //autoload switch
+    $('#autoload-switch').switchButton({
+        labels_placement: 'left',
+        on_label: 'Load Config @ unRAID Start',
+        off_label: 'Load Config @ unRAID Start',
+        checked: ("<?=$loadcfg;?>" == 'enable')
+    })
+    .change(function () {
+        setAutoLoad();
+        $.post('/update.php', $('#autoload-form').serializeArray());
+    });
+
+    setAutoLoad();
+
+    //var Config = ($('#editfile')[0].selectedIndex < 2 ) ? 1 : 0;
+
     $('#btnCancel').click(function() {
         $.cookie('one', 'tab1', { expires:null, path: '/'});
         location = '/Settings/IPMI';
+    });
+
+    $('#editfile').on('change', function () {
+        var Config = $('#editfile')[0].selectedIndex -1;
+        if (Config != -1){
+            $('#ipmiconfig').val(Config);
+            $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config}, function (data) {
+                    editor.setValue(data.config);
+                },'json'
+            );
+        }
     });
 
     var editor = CodeMirror.fromTextArea($('#editcfg')[0], {
@@ -93,34 +126,55 @@ $(function(){
     // save config and commit to bmc
     $('#btnSubmit').click(function () {
         editor.save();
-        $.post('/plugins/ipmi/include/ipmi_config.php', $('#cfgform').serializeArray(),function (data) {
-            var Title = 'IPMI Configuration';
-
-            if(data.success)
-                swal({title:Title,text:'saved',type:'success',closeOnConfirm: true,},function() {
-                    location = '/Settings/IPMI';
-                });
-
-            if(data.error)
-                swal({title:Title,text:data.error,type:'error'});
-
-        }, 'json');
+        commitConfig(Config);
     });
 
     // revert saved config file to bmc stored config
     $('#btnRevert').click(function () {
-        $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null}, function (data) {
-            var Title = 'IPMI Configuration';
-
-            if(data.success)
-                swal({title:Title,text:'reloaded from bmc',type:'success',closeOnConfirm: true,},function() {
-                    location.reload(true);
-                });
-
-            if(data.error)
-                swal({title:Title,text:data.error,type:'error'});
-
-        }, 'json');
+        revertConfig(Config);
     });
 });
+
+
+function commitConfig(Config) {
+    $.post('/plugins/ipmi/include/ipmi_config.php', $('#cfgform').serializeArray(),function (data) {
+        var Title = 'IPMI Sensors Configuration';
+
+        if(data.success){
+            swal({title:Title,text:'saved',type:'success',closeOnConfirm: true,},function() {
+                location = '/Tools/IPMITools';
+            });
+        }
+
+        if(data.error)
+            swal({title:Title,text:data.error,type:'error'});
+
+    }, 'json');
+}
+
+function revertConfig(Config) {
+    $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config}, function (data) {
+        var Title = 'IPMI Sensors Configuration';
+
+        if(data.success){
+            swal({title:Title,text:'reloaded from bmc',type:'success',closeOnConfirm: true,},function() {
+                location.reload(true);
+            });
+        }
+
+        if(data.error)
+            swal({title:Title,text:data.error,type:'error'});
+
+    }, 'json');
+}
+
+/* IPMI Sensors Configuration functions */
+function setAutoLoad() {
+    if ($('#autoload-switch')[0].checked) {
+        $('#autoload').val('enable');
+    }else{
+        $('#autoload').val('disable');
+    }
+}
+
 </script>
