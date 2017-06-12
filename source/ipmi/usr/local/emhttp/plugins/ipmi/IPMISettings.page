@@ -13,12 +13,12 @@ Title="Settings"
     <span class="status" id="notify-status">Event Notification: <?=$seld_status;?> </span>
 </div>
 
-<form markdown="1" name="seld_settings" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" id="settings-seld" name="seld_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
 <input type="hidden" id="COMMAND" name="#command" value="" />
 
 Enable Event Notifications:
-: <select id="IPMISELD" name="IPMISELD" size="1" onChange="checkSELD(this.form);" title="Enable event notifications and local system logging for ipmi events">
+: <select id="IPMISELD" name="IPMISELD" size="1" title="Enable event notifications and local system logging for ipmi events">
   <?=mk_option($seld, "disable", "No");?>
   <?=mk_option($seld, "enable", "Yes");?>
   </select>&nbsp;<input id="btnTest" type="button" value="Test" title="send a random sample event to your ipmi hardware">
@@ -40,7 +40,7 @@ Event Polling Time:
 > Specify how long between checking IPMI event log and adding events to system log.
 
 Enable Network Connection(s):
-: <select id="NETWORK" class="seld-run" name="NETWORK" size="1" onChange="checkNETWORK(this.form);"  title="Enable connection to network based ipmi, not necessary for local onboard ipmi">
+: <select id="NETWORK" class="seld-run" name="NETWORK" size="1"  title="Enable connection to network based ipmi, not necessary for local onboard ipmi">
   <?=mk_option($netsvc, 'disable', 'No');?>
   <?=mk_option($netsvc, 'enable', 'Yes');?>
   </select>
@@ -48,7 +48,7 @@ Enable Network Connection(s):
 > Enable monitoring of IPMI sensors and events through the network.
 
 <label class="seld-run ipmi-lan">Enable Localhost Connection:</label>
-: <select id="LOCAL" class="seld-run ipmi-lan" name="LOCAL" size="1" onChange="checkLOCAL(this.form);" title="Enable localhost connection along with network connections">
+: <select id="LOCAL" class="seld-run ipmi-lan" name="LOCAL" size="1" title="Enable localhost connection along with network connections">
   <?=mk_option($local, 'disable', 'No');?>
   <?=mk_option($local, 'enable', 'Yes');?>
   </select>
@@ -74,17 +74,17 @@ Enable Network Connection(s):
 
 &nbsp;
 
-<input class="seld-run" type="button" value="Default" onClick="resetDATA(this.form);"><input type="button" value="Reset BMC" id="bmc-reset" title="do a warm reset of the BMC">
+<input class="seld-run" type="button" id="Default-reset" value="Default"><input type="button" value="Reset BMC" id="bmc-reset" title="do a cold reset of the BMC">
 : <input id="btnApply" type="submit" value="Apply" onClick="verifyDATA(this.form)"><input type="button" value="Done" onClick="done()">
 </form>
 
 > Default button resets form.
 >
-> Reset BMC button performs a warm reset of the BMC
+> Reset BMC button performs a cold reset of the BMC
 
 <div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/mb.png"> Display Settings</span></div>
 
-<form markdown="1" name="ignore_settings" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" id="settings-ignore" name="ignore_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
 
 Global Available Sensors:
@@ -120,19 +120,19 @@ Dashboard Sensors:
 
 &nbsp;
 
-<input type="button" value="Default" onClick="resetDispDATA(this.form);">
+<input type="button" id="Default-ignore" value="Default">
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
 <div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/cpu.png"> Footer Settings</span></div>
 
-<form markdown="1" name="footer_settings" method="POST" action="/update.php" target="progressFrame">
+<form markdown="1" id="settings-footer" name="footer_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
 
 > Display Settings can be applied at any time.
 
 Sensor #1:
-: <select name="DISP_SENSOR1" class="display">
+: <select id="DISP_SENSOR1" name="DISP_SENSOR1" class="display">
         <option value=''>None</option>
         <?=ipmi_get_options($disp_sensor1);?>
   </select>
@@ -140,7 +140,7 @@ Sensor #1:
 > First sensor to monitor and display in footer of webGui.
 
 Sensor #2:
-: <select name="DISP_SENSOR2" class="display">
+: <select id="DISP_SENSOR2" name="DISP_SENSOR2" class="display">
         <option value=''>None</option>
         <?=ipmi_get_options($disp_sensor2);?>
     </select>
@@ -148,7 +148,7 @@ Sensor #2:
 > Second sensor to monitor and display in footer of webGui.
 
 Sensor #3:
-: <select name="DISP_SENSOR3" class="display">
+: <select id="DISP_SENSOR3" name="DISP_SENSOR3" class="display">
         <option value=''>None</option>
         <?=ipmi_get_options($disp_sensor3);?>
     </select>
@@ -156,7 +156,7 @@ Sensor #3:
 > Third sensor to monitor and display in footer of webGui.
 
 Sensor #4:
-: <select name="DISP_SENSOR4" class="display">
+: <select id="DISP_SENSOR4" name="DISP_SENSOR4" class="display">
         <option value=''>None</option>
         <?=ipmi_get_options($disp_sensor4);?>
     </select>
@@ -165,11 +165,11 @@ Sensor #4:
 
 &nbsp;
 
-<input type="button" value="Default" onClick="resetFootDATA(this.form);">
+<input type="button" id="Default-footer" value="Default">
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.9/jquery.mask.min.js" integrity="sha256-j9bZfF4eKVp8Zrzq/zna8WWo5lroqN1yKEQ8qvBfK1A=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js" integrity="sha256-f4H9UFZcQrKNDBMe5V3OIUcs/j7z9VcuBPJ5uYmBSdU=" crossorigin="anonymous"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 
 <script>
@@ -197,9 +197,9 @@ $(function(){
         })
         .attr('src', "/plugins/ipmi/images/<?=htmlspecialchars($board);?>.png");
 
-    $('#bmc-reset').on('click', resetBMC);
+    $('#bmc-reset').click(resetBMC);
 
-    $('#btnTest').on('click', EventTest);
+    $('#btnTest').click(EventTest);
 
     $('#tab5').click(function() {
         $.cookie('one', 'tab1', { expires:null, path: '/'});
@@ -210,9 +210,19 @@ $(function(){
         location.reload();
     });
 
-    checkSELD(document.seld_settings);
-    checkNETWORK(document.seld_settings);
-    checkLOCAL(document.seld_settings);
+    $('#Default-reset').click(resetDATA);
+    $('#Default-ignore').click(resetIgnoreDATA);
+    $('#Default-footer').click(resetFootDATA);
+
+    $('#IPMISELD').change(checkSELD);
+    checkSELD();
+
+    $('#NETWORK').change(checkNETWORK);
+    checkNETWORK();
+
+    $('#LOCAL').change(checkLOCAL);
+    checkLOCAL();
+
     decData(document.seld_settings);
 });
 
@@ -246,36 +256,36 @@ function DDCheckList(Select,Values,Message) {
     });
 }
 
-function resetDATA(form) {
-    form.IPMIPOLL.selectedIndex = 2;
-    form.NETWORK.selectedIndex = 0;
-    form.LOCAL.selectedIndex = 0;
-    form.IPADDR.value = '';
-    form.USER.value = '';
-    form.PASSWORD.value = '';
-    form.submit();
+function resetDATA() {
+    $('#IPMIPOLL')[0].selectedIndex = 2;
+    $('#NETWORK')[0].selectedIndex = 0;
+    $('#LOCAL')[0].selectedIndex = 0;
+    $('#IPADDR').val('');
+    $('#USER').val('');
+    $('#PASSWORD').val('');
+    $('#settings-seld').submit();
 }
 
-function resetDispDATA(form) {
-    form.IGNORE.value = '';
-    form.DASHTYPES.value = '';
-    form.submit();
+function resetIgnoreDATA() {
+    $('#IGNORE').val('');
+    $('#DIGNORE').val('');
+    $('#settings-ignore').submit();
 }
 
-function resetFootDATA(form) {
-    form.DISP_SENSOR1.selectedIndex = 0;
-    form.DISP_SENSOR2.selectedIndex = 0;
-    form.DISP_SENSOR3.selectedIndex = 0;
-    form.DISP_SENSOR4.selectedIndex = 0;
-    form.submit();
+function resetFootDATA() {
+    $('#DISP_SENSOR1')[0].selectedIndex = 0;
+    $('#DISP_SENSOR2')[0].selectedIndex = 0;
+    $('#DISP_SENSOR3')[0].selectedIndex = 0;
+    $('#DISP_SENSOR4')[0].selectedIndex = 0;
+    $('#settings-footer').submit();
 }
 
-function checkSELD(form) {
-    if (form.IPMISELD.selectedIndex < 1 ){
-        form.COMMAND.value = '/usr/local/emhttp/plugins/ipmi/scripts/seld_stop';
+function checkSELD() {
+    if ($('#IPMISELD')[0].selectedIndex < 1 ){
+        $('#COMMAND').val('/usr/local/emhttp/plugins/ipmi/scripts/seld_stop');
         $('#btnApply').prop('disabled', false);
     }else {
-    form.COMMAND.value = '/usr/local/emhttp/plugins/ipmi/scripts/seld_start';
+        $('#COMMAND').val('/usr/local/emhttp/plugins/ipmi/scripts/seld_start');
    }
 
     if ("<?=$seld_run;?>" === true)
@@ -290,8 +300,8 @@ function checkSELD(form) {
     }
 }
 
-function decData(form) {
- form.PASSWORD.value = atob(form.PASSWORD.value);
+function decData() {
+ $('#PASSWORD').val(atob($('#PASSWORD').val()));
 }
 
 function checkDASH(form) {
@@ -302,27 +312,27 @@ function checkDASH(form) {
    }
 }
 
-function checkNETWORK(form) {
-    if (form.NETWORK.selectedIndex < 1 )
+function checkNETWORK() {
+    if ($('#NETWORK')[0].selectedIndex < 1 )
         $('.ipmi-lan').hide();
     else {
         $('.ipmi-lan').show();
-        $('.ipmi-lan').prop('disabled', (form.IPMISELD.value === 'enable'));
+        $('.ipmi-lan').prop('disabled', ($('#IPMISELD').val() === 'enable'));
    }
 }
 
-function checkLOCAL(form) {
-    if (form.LOCAL.selectedIndex < 1 )
+function checkLOCAL() {
+    if ($('#LOCAL')[0].selectedIndex < 1 )
         $('.ipmi-ipaddr').mask('0ZZ.0ZZ.0ZZ.0ZZ,0ZZ.0ZZ.0ZZ.0ZZ,0ZZ.0ZZ.0ZZ.0ZZ,0ZZ.0ZZ.0ZZ.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
     else
         $('.ipmi-ipaddr').mask('localhost,0ZZ.0ZZ.0ZZ.0ZZ,0ZZ.0ZZ.0ZZ.0ZZ,0ZZ.0ZZ.0ZZ.0ZZ', {translation:  {'Z': {pattern: /[0-9]/, optional: true}}});
 }
 
-function verifyDATA(form) {
-    form.IPMISELD.value = form.IPMISELD.value.replace(/ /g,'_');
-    form.NETWORK.value = form.NETWORK.value.replace(/ /g,'_');
-    form.USER.value = form.USER.value.replace(/ /g,'_');
-    form.PASSWORD.value = btoa(form.PASSWORD.value);
+function verifyDATA() {
+    $('#IPMISELD').val( $('#IPMISELD').val().replace(/ /g,'_') );
+    $('#NETWORK').val( $('#NETWORK').val().replace(/ /g,'_') );
+    $('#USER').val( $('#USER').val().replace(/ /g,'_') );
+    $('#PASSWORD').val( btoa( $('#PASSWORD').val()) );
 }
 
 // send random test event
