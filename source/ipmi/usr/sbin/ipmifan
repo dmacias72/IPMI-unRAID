@@ -131,11 +131,28 @@ if($daemon){
 }
 
 #############################################
-# ASRock                                    #
-# ipmi-raw 00 3a 01 00 00 00 00 00 00 00 00 #
-# ipmi-raw 00 3a 01 AA BB CC DD EE FF GG HH #
-# 00 = smartfan mode                        #
-# 01 - 64  = 1% - 100%                      #
+# ASRock
+# ipmi-raw 00 3a 01 00 00 00 00 00 00 00 00
+# ipmi-raw 00 3a 01 AA BB CC DD EE FF GG HH
+# 00 = smartfan mode
+# 01 - 64  = 1% - 100%
+#############################################
+
+#############################################
+# Supermicro
+# ipmi-raw 00 30 70 66 01 00 64
+# ipmi-raw 00 30 70 66 AA BB CC
+#
+# AA
+# 00 - Get value
+# 01 - Set value
+#
+# BB
+# 00 - FAN 1/2/3/4
+# 01 - FAN A
+#
+# CC
+# 00 to 64 - Set Speed
 #############################################
 
 ##############################
@@ -171,7 +188,12 @@ function autofan() {
     global $board_json, $board, $raw, $fanopts;
     fanlog('Setting fans to auto');
     $auto = $board_json[$board]['auto'];
-    $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
+    if($board !== 'Supermicro')
+        $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
+    else{
+        $cmd  = "ipmi-raw $raw 00 $auto $fanopts 2>&1 >/dev/null &; ";
+        $cmd  .= "ipmi-raw $raw 01 $auto $fanopts 2>&1 >/dev/null &";
+    }
     shell_exec($cmd);
     }
 
@@ -272,6 +294,8 @@ while(TRUE){ while(TRUE){
     $sensors = ipmi_fan_sensors();
     $hex = '';
     $msg = '';
+    $cmd = '';
+    $exec = false;
 
     foreach($fans as $fan => $value){
 
@@ -279,8 +303,8 @@ while(TRUE){ while(TRUE){
 
         if(!empty($temp)) {
             $templo  = (isset($fancfg["TEMPLO_$fan"])) ? intval($fancfg["TEMPLO_$fan"])  : 30;
-            $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 40;
-            $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 1;
+            $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 45;
+            $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 16;
             $reading = floatval($sensors[$temp]['Reading']);
             $name    = htmlspecialchars($sensors[$temp]['Name']);
 
@@ -316,19 +340,21 @@ while(TRUE){ while(TRUE){
             //add value to hex
             $hex .= " $pwm";
         }else{
-            if($current_pwm != $pwm || $current_pwm2 != $pwm){
-                $cmd = "ipmi-raw $raw $value $pwm $fanopts 2>&1";
-                //shell_exec($cmd);
-                echo $cmd;
+            $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
 
-                //log changes
-                fanlog($msg);
+            if($value == '00' && $current_pwm != $pwm){
+                $cmd .= $cmd_str;
 
                 //set current value for next loop
-                if ($value == '00')
-                    $current_pwm  = $pwm;
-                else
-                    $current_pwm2 = $pwm;
+                $current_pwm  = $pwm;
+                $exec = true;
+            }
+            if($value == '01' && $current_pwm2 != $pwm){
+                $cmd .= $cmd_str;
+
+                //set current value for next loop
+                $current_pwm2 = $pwm;
+                $exec = true;
             }
         }
     }
@@ -336,27 +362,33 @@ while(TRUE){ while(TRUE){
     //compare last value to new value
     if($current_hex != $hex && $board !== 'Supermicro'){
         $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
-        //shell_exec($cmd);
-        echo $cmd;
-
-        //log changes
-        fanlog($msg);
 
         //set current value for next loop
         $current_hex = $hex;
+        $exec = true;
+    }
+
+    // execute command if exec set
+    if($exec){
+        shell_exec($cmd);
+
+        //log changes
+        fanlog($msg);
     }
 
     /* print variable */
     $defined_vars = get_defined_vars();
 
     //remove vars from array to save
-    unset($defined_vars['current_hex'],$defined_vars['MD5']);
+    unset($defined_vars['current_hex'],$defined_vars['current_pwm'],$defined_vars['current_pwm2'],$defined_vars['MD5']);
 
     foreach (array("_GET","_POST","_COOKIE","_FILES","argv","argc","_SERVER") as $i)
         unset($defined_vars[$i]);
 
     //add saved vars to array for debug print
     $defined_vars['current_hex'] = $current_hex;
+    $defined_vars['current_pwm'] = $current_pwm;
+    $defined_vars['current_pwm2'] = $current_pwm2;
     $defined_vars['MD5'] = $MD5;
     debug("\nDECLARED VARIABLES:\n".print_r($defined_vars, true));
     unset($defined_vars);
