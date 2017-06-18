@@ -76,7 +76,7 @@ if(file_exists($lockfile)){
     $pid_running = preg_replace("/\s+/", "", shell_exec("ps -p $lock_pid | grep $lock_pid"));
     if($pid_running){
         if($quit){
-            fanlog('Stopping Fan Control'); 
+            fanlog('Stopping Fan Control');
             syslog(LOG_INFO, "killing daemon with PID [$lock_pid]");
             exec("kill $lock_pid");
             unlink($lockfile);
@@ -124,7 +124,7 @@ if (!$board_file_status) {
 }
 
 if($daemon){
-    $options = ($force) ? '--force' : ''; 
+    $options = ($force) ? '--force' : '';
     exec("php $service $options 1>/dev/null ".($debug ? "":"2>&1 ")."&");
     syslog(LOG_INFO, "process started. To terminate it, type: $prog --quit");
     exit(0);
@@ -312,17 +312,37 @@ while(TRUE){ while(TRUE){
        }else
             $pwm = '00';
 
-    //add value to hex
-    $hex .= " $pwm";
+        if($board !== 'Supermicro'){
+            //add value to hex
+            $hex .= " $pwm";
+        }else{
+            if($current_pwm != $pwm || $current_pwm2 != $pwm){
+                $cmd = "ipmi-raw $raw $value $pwm $fanopts 2>&1";
+                //shell_exec($cmd);
+                echo $cmd;
+
+                //log changes
+                fanlog($msg);
+
+                //set current value for next loop
+                if ($value == '00')
+                    $current_pwm  = $pwm;
+                else
+                    $current_pwm2 = $pwm;
+            }
+        }
     }
 
     //compare last value to new value
-    if($current_hex != $hex){
+    if($current_hex != $hex && $board !== 'Supermicro'){
         $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
-        shell_exec($cmd);
+        //shell_exec($cmd);
+        echo $cmd;
 
         //log changes
         fanlog($msg);
+
+        //set current value for next loop
         $current_hex = $hex;
     }
 
