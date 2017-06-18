@@ -70,7 +70,7 @@ $(function(){
         sortReset: true,
         sortRestart : true,
         sortInitialOrder: 'asc',
-        widgets: ['saveSort', 'filter', 'stickyHeaders'],
+        widgets: ['saveSort', 'filter', 'stickyHeaders', 'zebra'],
         widgetOptions: {
             stickyHeaders_filteredToTop: true,
             filter_hideEmpty : true,

@@ -4,8 +4,16 @@ Markdown="false"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/ipmi.css">
 <link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter.css">
-<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter-<?=htmlspecialchars($display["theme"]);?>.css">
+<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter-<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'white' : 'black';?>.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
+<style>
+table.tablesorter tbody tr:nth-child(odd) {
+    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'F0F0F0' : '202020';?>;
+}
+table.tablesorter tbody tr:nth-child(even) {
+    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'E0E0E0' : '1b1d1b';?>;
+}
+</style>
 
 <div>
     <span id="adv-switch" class="status"><input type='checkbox' id='advancedview'></span>
@@ -83,7 +91,7 @@ $(function(){
         sortReset: true,
         sortRestart : true,
         sortInitialOrder: 'asc',
-        widgets: ['saveSort', 'filter', 'stickyHeaders'],
+        widgets: ['saveSort', 'filter', 'stickyHeaders','zebra'],
         widgetOptions: {
             stickyHeaders_filteredToTop: true,
             filter_hideEmpty : true,
