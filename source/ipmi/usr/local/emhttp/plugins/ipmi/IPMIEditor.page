@@ -92,8 +92,6 @@ $(function(){
 
     setAutoLoad();
 
-    //var Config = ($('#editfile')[0].selectedIndex < 2 ) ? 1 : 0;
-
     $('#btnCancel').click(function() {
         $.cookie('one', 'tab1', { expires:null, path: '/'});
         location = '/Settings/IPMI';
@@ -183,7 +181,6 @@ function revertConfig() {
     }
 }
 
-/* IPMI Sensors Configuration functions */
 function setAutoLoad() {
     if ($('#autoload-switch')[0].checked) {
         $('#autoload').val('enable');
