@@ -80,13 +80,12 @@ Markdown="false"
 
 <!-- Fan Settings -->
 
-<div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span>
+<div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span></div>
 
 <?if ($board_status):?>
-    <span class="status" style="margin-top: 30px;"><input type="checkbox" id="advancedview"></span>
+    <span class="status" style="margin-top: 0px;"><input type="checkbox" id="advancedview"></span>
 <?endif;?>
 
-</div>
 <form name="fanctrl_options" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/fan.cfg" />
 
@@ -114,7 +113,7 @@ Markdown="false"
 </form>
 
 <div id="title" ><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Control Log </span></div>
-<table class="tablesorter fanlog" style="margin-top: -22px;">
+<table class="tablesorter fanlog" style="margin-top: 0px;">
     <thead>
         <th>Logfile</th>
         <th>Size</th>
