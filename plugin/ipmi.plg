@@ -26,7 +26,7 @@
 - change bmc reset from warm to cold reset
 - update codemirror cdn
 - update freeipmi to 1.5.5
-- remove board log file and switch to dmicode for board info instead of ipmi-fru
+- remove board log file and switch to dmidecode for board info instead of ipmi-fru
 -
 ###2017.01.27
 - update and harden code for security
@@ -392,7 +392,7 @@ done
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
-echo " Copyright 2016, &author;"
+echo " Copyright 2015-2017, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
