@@ -4,10 +4,16 @@ Cond="file_exists('/boot/config/plugins/ipmi/ipmidash')"
 ---
 <link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/ipmi.css">
 <link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter.css">
-<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter-<?=$display["theme"];?>.css">
+<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter-<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'white' : 'black';?>.css">
 <style>
 table.ipmi thead tr th{width:16.6%;padding-left:10px;}
 table.ipmi tbody tr td{padding-left:10px;font-weight:bold;}
+table.tablesorter tbody tr:nth-child(odd) {
+    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'F0F0F0' : '202020';?>;
+}
+table.tablesorter tbody tr:nth-child(even) {
+    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'E0E0E0' : '1b1d1b';?>;
+}
 </style>
 
 <table class="tablesorter shift ipmi" id="tblIPMIDash">
