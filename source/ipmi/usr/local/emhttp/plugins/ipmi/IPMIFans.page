@@ -65,7 +65,7 @@ Markdown="false"
 
 <dl>
     <dt><input id="FAN_DEFAULT" class="fanctrl" type="button" value="Default" onClick="resetFANDATA(this.form);" title="loads the default values for fan control">
-    <?if (($board == 'AsRock') || ($board == 'ASRockRack')):?>
+    <?if ($board === 'ASRock' || $board === 'ASRockRack'):?>
         <input id="btnConfig" class="fanctrl fanctrl-run" type="button" value="Configure" title="tests your fans and determines their location for fan control">
     <?endif;?>
     </dt>
