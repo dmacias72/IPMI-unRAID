@@ -191,8 +191,8 @@ function autofan() {
     if($board !== 'Supermicro')
         $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
     else{
-        $cmd  = "ipmi-raw $raw 00 $auto $fanopts 2>&1 >/dev/null &; ";
-        $cmd  .= "ipmi-raw $raw 01 $auto $fanopts 2>&1 >/dev/null &";
+        $cmd  = "ipmi-raw $raw 00 $auto $fanopts 2>&1 >/dev/null; ".
+            "ipmi-raw $raw 01 $auto $fanopts 2>&1 >/dev/null &";
     }
     shell_exec($cmd);
     }
@@ -333,8 +333,9 @@ while(TRUE){ while(TRUE){
             $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
             $msg .= " $fan($pct%):$name(${reading}°C)";
 
-       }else
-            $pwm = '00';
+       }else{
+            $pwm = ($board !== 'Supermicro') ? '00' : '01';
+       }
 
         if($board !== 'Supermicro'){
             //add value to hex
