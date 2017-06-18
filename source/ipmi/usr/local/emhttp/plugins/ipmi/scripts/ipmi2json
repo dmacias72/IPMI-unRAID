@@ -195,7 +195,7 @@ fanlog('Checking IPMI fan Locations...');
 
 for($i = 0; $i <= $sockets; $i++){
 
-    $raw = "${lun} ${netfn} ${i}0";
+    $raw = "${lun} ${netfn} ${i}1";
 
     // set fans to full speed and get readings
     $cmd = "ipmi-raw $raw $full $fanopts 2>&1";
