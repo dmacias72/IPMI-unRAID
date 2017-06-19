@@ -33,7 +33,7 @@ elsif ($max_temp == 39 ){
   # set fan speed to 50% duty cycle
   `ipmi-raw 00 30 70 66 01 00 32`
 }
- 
+
 else {
   # all hard drive temperatures are 38 deg C or cooler
   # set fan speed control to Optimal
@@ -43,9 +43,15 @@ else {
 30 70 66 Fan Control Manually (X10)
 #100% duty cycle
 ipmi-raw 00 30 70 66 01 00 64
-     
+
 #50% duty cycle
 ipmi-raw 00 30 70 66 01 00 32
 The last value is the duty cycle, with max = 64, and minimum = 0.
 You can set the duty cycle in 64 steps, between minimum and full speed.
 */
+
+ipmi-raw 30 45 0 - get current FAN mode status (standard/full/optimal -> [0/1/2])
+ipmi-raw 30 45 01 02 - set minimal mode 1800 rpm
+ipmi-raw 30 45 01 00 - set standard mode 2800-3300 rpm
+ipmi-raw 30 45 01 04 - set intermediate mode alittle bit slowly then max performance one, 6500-7000 rpm
+ipmi-raw 30 45 01 01 - set max performance mode 6600-7200 rpm
