@@ -20,8 +20,8 @@ if($board !== 'Supermicro'){
     $board_file_status = true;
     $board_json = [ 'Supermicro' =>
             [ 'raw'   => '00 30 70 66 01',
-              'auto'  => '01',
-              'full'  => '64',
+              'auto'  => '00 30 45 01',
+              'full'  => '00 30 45 01 01',
               'fans'  => [
                 'FAN1234' => '00',
                 'FANA' => '01'

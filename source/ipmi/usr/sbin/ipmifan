@@ -188,23 +188,31 @@ function autofan() {
     global $board_json, $board, $raw, $fanopts;
     fanlog('Setting fans to auto');
     $auto = $board_json[$board]['auto'];
+
     if($board !== 'Supermicro')
         $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
     else{
-        $cmd  = "ipmi-raw $raw 00 $auto $fanopts 2>&1 >/dev/null; ".
-            "ipmi-raw $raw 01 $auto $fanopts 2>&1 >/dev/null &";
+        $mode = trim(shell_exec("ipmi-raw 00 30 45 00 | awk -F '45 00' '{print $2}'"));
+        $cmd  = "ipmi-raw $auto $mode $fanopts 2>&1 >/dev/null &";
     }
+
     shell_exec($cmd);
-    }
+}
 
 /* full speed fan */
 function fullfan() {
     global $board_json, $board, $raw, $fanopts;
     fanlog('Setting fans to full speed');
     $full = $board_json[$board]['full'];
-    $cmd = "ipmi-raw $raw $full $fanopts 2>&1 >/dev/null &";
-    shell_exec($cmd);
+
+    if($board !== 'Supermicro')
+        $cmd = "ipmi-raw $raw $full $fanopts 2>&1 >/dev/null &";
+    else{
+        $cmd  = "ipmi-raw $full $fanopts 2>&1 >/dev/null &";
     }
+
+    shell_exec($cmd);
+}
 
 /* scan directory for type */
 function scan_dir($dir, $type = ""){
@@ -334,7 +342,7 @@ while(TRUE){ while(TRUE){
             $msg .= " $fan($pct%):$name(${reading}°C)";
 
        }else{
-            $pwm = ($board !== 'Supermicro') ? '00' : '01';
+            $pwm ='00';
        }
 
         if($board !== 'Supermicro'){
@@ -343,14 +351,14 @@ while(TRUE){ while(TRUE){
         }else{
             $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
 
-            if($value == '00' && $current_pwm != $pwm){
+            if($value == '00' && $current_pwm !== $pwm && $pwm !== '00'){
                 $cmd .= $cmd_str;
 
                 //set current value for next loop
                 $current_pwm  = $pwm;
                 $exec = true;
             }
-            if($value == '01' && $current_pwm2 != $pwm){
+            if($value == '01' && $current_pwm2 !== $pwm && $pwm !== '00'){
                 $cmd .= $cmd_str;
 
                 //set current value for next loop
