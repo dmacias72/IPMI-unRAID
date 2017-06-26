@@ -304,14 +304,6 @@ function decData() {
  $('#PASSWORD').val(atob($('#PASSWORD').val()));
 }
 
-function checkDASH(form) {
-    if (form.DASH.selectedIndex < 1 )
-        $('.dash').hide();
-    else {
-        $('.dash').show();
-   }
-}
-
 function checkNETWORK() {
     if ($('#NETWORK')[0].selectedIndex < 1 )
         $('.ipmi-lan').hide();
@@ -350,11 +342,11 @@ function EventTest() {
     });
 }
 
-// do a warm reset of the bmc
+// do a cold reset of the bmc
 function resetBMC(){
     swal({
         title: 'Are you sure?',
-        text: 'You want to do a warm reset of the BMC!?',
+        text: 'You want to do a cold reset of the BMC!?',
         type: 'warning',
         showCancelButton: true,
         closeOnConfirm: true,
@@ -362,7 +354,7 @@ function resetBMC(){
         $.post('/plugins/ipmi/include/bmc_reset.php', {},function(data) {
 
             if(data.success)
-                swal({title:Title,text:'warm reset of BMC sucessful',type:'success',closeOnConfirm: true,},function() {
+                swal({title:Title,text:'cold reset of BMC sucessful',type:'success',closeOnConfirm: true,},function() {
                     location.reload(true);
                 });
 
