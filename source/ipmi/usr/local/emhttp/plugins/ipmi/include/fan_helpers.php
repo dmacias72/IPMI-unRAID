@@ -57,6 +57,7 @@ function get_fanctrl_options(){
                 $temp    = $fansensors[$fancfg[$tempid]];
                 $templo  = 'TEMPLO_'.$name;
                 $temphi  = 'TEMPHI_'.$name;
+                $fanmax  = 'FANMAX_'.$name;
                 $fanmin  = 'FANMIN_'.$name;
 
                 // hidden fan id
@@ -66,7 +67,7 @@ function get_fanctrl_options(){
                 echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
                 if ($temp['Name'])
                     echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
-                    $fancfg[$templo],', ',$fancfg[$temphi],', ',$fancfg[$fanmin];
+                    $fancfg[$templo],', ',$fancfg[$temphi],', ',$fancfg[$fanmin],'-',$fancfg[$fanmax];
                 else
                     echo 'Auto';
                 echo '</span><span class="fanctrl-settings">&nbsp;</span>';
@@ -104,11 +105,18 @@ function get_fanctrl_options(){
                 get_temp_range('HI', $fancfg[$temphi]),
                 '</select></dd></dl>';
 
+                // fan control maximum speed
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Fan speed maximum (1-64):</dd></dl></dt><dd>',
+                '<select name="',$fanmax,'" class="',$tempid,' fanctrl-settings">',
+                get_minmax_options('HI', $fancfg[$fanmax]),
+                '</select></dd></dl>';
+
                 // fan control minimum speed
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>Fan speed minimum (1-64):</dd></dl></dt><dd>',
                 '<select name="',$fanmin,'" class="',$tempid,' fanctrl-settings">',
-                get_min_options($fancfg[$fanmin]),
+                get_minmax_options('LO', $fancfg[$fanmin]),
                 '</select></dd></dl>&nbsp;';
 
                 $i++;
@@ -175,6 +183,24 @@ function get_temp_range($range, $selected=0){
             $options .= " selected";
 
         $options .= ">$temp</option>";
+    }
+    return $options;
+}
+
+/* get options for fan speed min and max */
+function get_minmax_options($range, $selected=0){
+    $incr = [1,64];
+    if ($range === 'HI')
+      rsort($incr);
+    $options = "";
+    foreach(range($incr[0], $incr[1], 1) as $value){
+        $options .= "<option value='$value'";
+
+        // set saved option as selected
+        if (intval($selected) === $value)
+            $options .= " selected";
+
+        $options .= ">$value</option>";
     }
     return $options;
 }
