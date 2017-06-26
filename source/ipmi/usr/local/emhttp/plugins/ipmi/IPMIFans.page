@@ -17,7 +17,7 @@ Markdown="false"
 <dl>
     <dt>Fan Control:</dt>
     <dd>
-        <select name="FANCONTROL" class="fanctrl" size="1" onChange="checkFANCTRL(this.form);" title="Enable fan control based on selected temperature sensors">
+        <select id="FANCONTROL" name="FANCONTROL" class="fanctrl" size="1" title="Enable fan control based on selected temperature sensors">
         <?=mk_option($fanctrl, 'disable', 'No')?>
         <?=mk_option($fanctrl, 'enable', 'Yes')?>
         </select>
@@ -30,14 +30,19 @@ Markdown="false"
     <dt>Temperature Polling Time:</dt>
     <dd>
         <select id="FANPOLL" class="fanctrl fanctrl-run" name="FANPOLL" size="1" title="Amount of time between ipmi temperature checks">
-        <?=mk_option($fanpoll, '1', '1 min');?>
-        <?=mk_option($fanpoll, '2', '2 min');?>
-        <?=mk_option($fanpoll, '3', '3 min');?>
-        <?=mk_option($fanpoll, '4', '4 min');?>
-        <?=mk_option($fanpoll, '5', '5 min');?>
-        <?=mk_option($fanpoll, '10', '10 min');?>
-        <?=mk_option($fanpoll, '15', '15 min');?>
-        <?=mk_option($fanpoll, '30', '30 min');?>
+        <?=mk_option($fanpoll, '1', '10 sec');?>
+        <?=mk_option($fanpoll, '2', '20 sec');?>
+        <?=mk_option($fanpoll, '3', '30 sec');?>
+        <?=mk_option($fanpoll, '4', '40 sec');?>
+        <?=mk_option($fanpoll, '5', '50 sec');?>
+        <?=mk_option($fanpoll, '6', '1 min');?>
+        <?=mk_option($fanpoll, '12', '2 min');?>
+        <?=mk_option($fanpoll, '18', '3 min');?>
+        <?=mk_option($fanpoll, '24', '4 min');?>
+        <?=mk_option($fanpoll, '30', '5 min');?>
+        <?=mk_option($fanpoll, '60', '10 min');?>
+        <?=mk_option($fanpoll, '90', '15 min');?>
+        <?=mk_option($fanpoll, '180', '30 min');?>
         </select>
     </dd>
 </dl>
@@ -64,12 +69,12 @@ Markdown="false"
 &nbsp;
 
 <dl>
-    <dt><input id="FAN_DEFAULT" class="fanctrl" type="button" value="Default" onClick="resetFANDATA(this.form);" title="loads the default values for fan control">
+    <dt><input id="FAN_DEFAULT" class="fanctrl" type="button" value="Default" title="loads the default values for fan control">
     <?if ($board === 'ASRock' || $board === 'ASRockRack'):?>
         <input id="btnConfig" class="fanctrl fanctrl-run" type="button" value="Configure" title="tests your fans and determines their location for fan control">
     <?endif;?>
     </dt>
-    <dd><input id="btnFANApply" type="submit" value="Apply" onClick="verifyFANDATA(this.form)"><input type="button" value="Done" onClick="done()"></dd>
+    <dd><input id="btnFANApply" type="submit" value="Apply"><input type="button" value="Done" onClick="done()"></dd>
 </dl>
 <blockquote class="inline_help">
     <p>'Default' loads the default values for fan control.</p>
@@ -82,7 +87,7 @@ Markdown="false"
 
 <div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span></div>
 
-<?if ($board_status):?>
+<?if ($board_status !== false):?>
     <span class="status" style="margin-top: 0px;"><input type="checkbox" id="advancedview"></span>
 <?endif;?>
 
@@ -99,7 +104,7 @@ Markdown="false"
     <p>High temperature threshold (°C):  Highest temperature in the linear range to determine fan speed. Above this temperature fan with run at full speed.</p>
 </blockquote>
 
-<?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None'))) && ($board_status)):?>
+<?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None'))) && ($board_status !== false)):?>
     <?get_fanctrl_options();?>
 <?endif;?>
 </div>
@@ -107,7 +112,7 @@ Markdown="false"
 
 <dl>
     <dt>&nbsp;</dt>
-    <dd><input type="submit" value="Apply" onClick="verifyFANOPT(this.form)"><input type="button" value="Done" onClick="done()"></dd>
+    <dd><input type="submit" value="Apply"><input type="button" value="Done" onClick="done()"></dd>
 </dl>
 
 </form>
@@ -129,10 +134,11 @@ if(is_file($log)){
 ?>
     </tbody>
 </table>
+<?endif;?>
 
 <script>
 $(function(){
-    <?if ($board_status):?>
+    <?if ($board_status !== false):?>
 
     // check if board supports ipmi
     $('#tab2').click(function() {
@@ -142,7 +148,7 @@ $(function(){
     if($.cookie('one') == 'tab2')
         checkBoard();
 
-    //advanced view switch set cookie and toggle advanced columns
+    //advanced vBOARDiew switch set cookie and toggle advanced columns
     $('#advancedview').switchButton({
         labels_placement: 'left',
         on_label: 'Advanced View',
@@ -171,6 +177,10 @@ $(function(){
                 openBox('/plugins/ipmi/scripts/ipmi2json', 'IPMI Fan Config', 600, 900, true);
     });
 
+    $('#FAN_DEFAULT').click(resetFANDATA);
+    $('#FANCONTROL').click(checkFANCTRL)
+    checkFANCTRL();
+
     <?endif;?>
 
     $('#fanlog-clear').on('click', clearFanLOG);
@@ -180,23 +190,29 @@ $(function(){
         location ='/Tools/IPMITools';
     });
 
-    checkFANCTRL(document.fanctrl_settings);
-
 });
 
-function resetFANDATA(form) {
-    form.FANCONTROL.selectedIndex = 0;
-    form.FANPOLL.selectedIndex    = 2;
-    form.FANIP.selectedIndex      = 0;
-    form.BOARD.value              = '';
-    form.submit();
+function resetFANDATA() {
+    $('#FANCONTROL')[0].selectedIndex = 0;
+    $('#FANPOLL')[0].selectedIndex = 5;
+    $('#FANIP')[0].selectedIndex = 0;
+    $('#fanctrl_settings').submit();
 }
 
-function checkFANCTRL(form) {
-    if (form.FANCONTROL.selectedIndex < 1 ){
-        form.FANCMD.value = '/usr/local/emhttp/plugins/ipmi/scripts/fanctrl_stop';
+/* empty fan log */
+function clearFanLOG() {
+    $.get('/plugins/ipmi/include/fanlog_clear.php', {},function() {
+        $('#fanlog-size').html('0');
+    });
+}
+
+<?if ($board_status !== false):?>
+
+function checkFANCTRL() {
+    if ($('#FANCONTROL')[0].selectedIndex < 1 ) {
+        $('#FANCMD').val('/usr/local/emhttp/plugins/ipmi/scripts/fanctrl_stop');
     }else {
-        form.FANCMD.value = '/usr/local/emhttp/plugins/ipmi/scripts/fanctrl_start';
+        $('#FANCMD').val('/usr/local/emhttp/plugins/ipmi/scripts/fanctrl_start');
     }
 
     if ("<?=$fanctrl_run;?>" == true)
@@ -208,19 +224,6 @@ function checkFANCTRL(form) {
         $('#btnFanApply').prop('disabled', false);
     }
 }
-
-function verifyFANDATA(form) {
-    form.FANCONTROL.value = form.FANCONTROL.value.replace(/ /g,'_');
-}
-
-/* empty fan log */
-function clearFanLOG(){
-    $.get('/plugins/ipmi/include/fanlog_clear.php', {},function() {
-        $('#fanlog-size').html('0');
-    });
-}
-
-<?if ($board_status):?>
 
 function checkBoard() {
     if ("<?=$board_file_status;?>" == false) {
@@ -240,4 +243,3 @@ function toggleFanCTRL() {
 }
 <?endif;?>
 </script>
-<?endif;?>

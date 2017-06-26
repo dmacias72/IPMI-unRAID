@@ -313,6 +313,7 @@ while(TRUE){ while(TRUE){
             $templo  = (isset($fancfg["TEMPLO_$fan"])) ? intval($fancfg["TEMPLO_$fan"])  : 30;
             $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 45;
             $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 16;
+            $fanmax  = (isset($fancfg["FANMAX_$fan"])) ? intval($fancfg["FANMAX_$fan"])  : 64;
             $reading = floatval($sensors[$temp]['Reading']);
             $name    = htmlspecialchars($sensors[$temp]['Name']);
 
@@ -330,6 +331,12 @@ while(TRUE){ while(TRUE){
             if ($pwm <= $fanmin){
                 $pwm  = $fanmin;
                 $pct  = $fanmin/64;
+            }
+
+            //impose fan upper limit
+            if ($pwm >= $fanmax){
+                $pwm  = $fanmax;
+                $pct  = $fanmax/64;
             }
 
             //pad pwm to 2 places
@@ -404,7 +411,7 @@ while(TRUE){ while(TRUE){
 
     $time1 = time();
 
-    for ($i=0; $i < $fanpoll*6 ; $i++) {
+    for ($i=0; $i < $fanpoll ; $i++) {
         sleep(10);
         $MD5_new = md5_file($fancfg_file);
         if((file_exists($fancfg_file)) && ($MD5_new != $MD5)){

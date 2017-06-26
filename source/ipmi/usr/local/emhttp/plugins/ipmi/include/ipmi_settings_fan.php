@@ -4,7 +4,8 @@ $fancfg_file = "$plg_path/fan.cfg";
 if (file_exists($fancfg_file))
     $fancfg = parse_ini_file($fancfg_file);
 $fanctrl = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
-$fanpoll = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 3;
+$fanpoll = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
+
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
 /* board info */
@@ -12,6 +13,7 @@ $boards = ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''];
 $board = trim(shell_exec("dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'"));
 $board_model  = trim(shell_exec("dmidecode -t 2 | grep 'Product Name' | awk -F 'e:' '{print $2}'"));
 $board_status  = array_key_exists($board, $boards);
+
 if($board !== 'Supermicro'){
     $board_file = "$plg_path/board.json";
     $board_file_status = (file_exists($board_file));
