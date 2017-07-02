@@ -9,7 +9,51 @@ Title="Settings"
 <div id="title" style="margin-top: -22px;">
     <span class="left"><img class="icon" src="/plugins/ipmi/icons/sensors.png"> IPMI Settings</span>
     <span class="status" style="margin-top: 50px;margin-left: -200px;">
-    <img class="board-img" src=""></span>
+    <img id="board-img" src=""></span>
+</div>
+
+<form markdown="1" id="settings-ipmi" name="ipmi_settings" method="POST" action="/update.php" target="progressFrame">
+
+Enable Network Connection(s):
+: <select id="NETWORK" class="ipmi-run" name="NETWORK" size="1"  title="Enable connection to network based ipmi, not necessary for local onboard ipmi">
+  <?=mk_option($netsvc, 'disable', 'No');?>
+  <?=mk_option($netsvc, 'enable', 'Yes');?>
+  </select>
+
+> Enable monitoring of IPMI sensors and events through the network.
+
+<label class="ipmi-lan">Enable Localhost Connection:</label>
+: <select id="LOCAL" class="ipmi-run ipmi-lan" name="LOCAL" size="1" title="Enable localhost connection along with network connections">
+  <?=mk_option($local, 'disable', 'No');?>
+  <?=mk_option($local, 'enable', 'Yes');?>
+  </select>
+
+> Enable monitoring of localhost as well as network servers.
+>
+> Useful when monitoring local server as well as a backup server or two.
+
+<label class="ipmi-lan">IP Address(es):</label>
+: <input id="IPADDR" type="text" class="ipmi-run ipmi-lan ipmi-ipaddr" name="IPADDR" maxlength="66" value="<?=htmlspecialchars($ipaddr);?>" title="IPMI IP address" placeholder="" ><label class='ipmi-lan'><?=$conn;?></label>
+
+> Add up to four different IPMI IP addresses to monitor sensors and events.
+
+<label class="ipmi-lan">User Name:</label>
+: <input id="USER" type="text" class="ipmi-run ipmi-lan ipmi-user" name="USER" maxlength="40" value="<?=htmlspecialchars($user);?>" title="username for network access IPMI" placeholder="username for network access" >
+
+> Username for IPMI connections(s).
+
+<label class="ipmi-lan">Password:</label>
+: <input id="PASSWORD" type="password" class="ipmi-run ipmi-lan ipmi-password" name="PASSWORD" maxlength="40" value="<?=htmlspecialchars($password);?>" title="password for network access IPMI" placeholder="password for network access" >
+
+> Password for IPMI connection(s).
+
+<input class="ipmi-run" type="button" id="ipmi-default" value="Default"><input type="button" value="Reset BMC" id="bmc-reset" title="do a cold reset of the BMC">
+: <input id="btnApply" type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
+
+</form>
+
+<div id="title" >
+    <span class="left"><img class="icon" src="/plugins/ipmi/icons/sensors.png"> Event Notification</span>
     <span class="status" id="notify-status">Event Notification: <?=$seld_status;?> </span>
 </div>
 
@@ -39,43 +83,10 @@ Event Polling Time:
 
 > Specify how long between checking IPMI event log and adding events to system log.
 
-Enable Network Connection(s):
-: <select id="NETWORK" class="seld-run" name="NETWORK" size="1"  title="Enable connection to network based ipmi, not necessary for local onboard ipmi">
-  <?=mk_option($netsvc, 'disable', 'No');?>
-  <?=mk_option($netsvc, 'enable', 'Yes');?>
-  </select>
-
-> Enable monitoring of IPMI sensors and events through the network.
-
-<label class="seld-run ipmi-lan">Enable Localhost Connection:</label>
-: <select id="LOCAL" class="seld-run ipmi-lan" name="LOCAL" size="1" title="Enable localhost connection along with network connections">
-  <?=mk_option($local, 'disable', 'No');?>
-  <?=mk_option($local, 'enable', 'Yes');?>
-  </select>
-
-> Enable monitoring of localhost as well as network servers.
->
-> Useful when monitoring local server as well as a backup server or two.
-
-<label class="seld-run ipmi-lan">IP Address(es):</label>
-: <input id="IPADDR" type="text" class="seld-run ipmi-lan ipmi-ipaddr" name="IPADDR" maxlength="66" value="<?=htmlspecialchars($ipaddr);?>" title="IPMI IP address" placeholder="" ><label class='ipmi-lan'><?=$conn;?></label>
-
-> Add up to four different IPMI IP addresses to monitor sensors and events.
-
-<label class="seld-run ipmi-lan">User Name:</label>
-: <input id="USER" type="text" class="seld-run ipmi-lan ipmi-user" name="USER" maxlength="40" value="<?=htmlspecialchars($user);?>" title="username for network access IPMI" placeholder="username for network access" >
-
-> Username for IPMI connections(s).
-
-<label class="seld-run ipmi-lan">Password:</label>
-: <input id="PASSWORD" type="password" class="seld-run ipmi-lan ipmi-password" name="PASSWORD" maxlength="40" value="<?=htmlspecialchars($password);?>" title="password for network access IPMI" placeholder="password for network access" >
-
-> Password for IPMI connection(s).
-
 &nbsp;
 
-<input class="seld-run" type="button" id="Default-reset" value="Default"><input type="button" value="Reset BMC" id="bmc-reset" title="do a cold reset of the BMC">
-: <input id="btnApply" type="submit" value="Apply" onClick="verifyDATA(this.form)"><input type="button" value="Done" onClick="done()">
+<input class="seld-run" type="button" id="seld-default" value="Default">
+: <input class="seld-run" id="btnSELD" type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
 > Default button resets form.
@@ -120,7 +131,7 @@ Dashboard Sensors:
 
 &nbsp;
 
-<input type="button" id="Default-ignore" value="Default">
+<input type="button" id="ignore-default" value="Default">
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
@@ -165,7 +176,7 @@ Sensor #4:
 
 &nbsp;
 
-<input type="button" id="Default-footer" value="Default">
+<input type="button" id="footer-default" value="Default">
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
@@ -191,11 +202,11 @@ $(function(){
     DDCheckList('#select-dash','#DIGNORE','Select Sensors (uncheck all will disable)');
 
     // if png is missing, replaced with unknown.png
-    $('.board-img')
+    $('#board-img')
         .error(function() {
-            $('.board-img').attr('src', '/plugins/ipmi/images/unknown.png');
+            $('#board-img').attr('src', '/plugins/ipmi/images/unknown.png');
         })
-        .attr('src', "/plugins/ipmi/images/<?=htmlspecialchars($board);?>.png");
+        .attr('src', "/plugins/ipmi/images/<?=$board;?>.png");
 
     $('#bmc-reset').click(resetBMC);
 
@@ -210,9 +221,9 @@ $(function(){
         location.reload();
     });
 
-    $('#Default-reset').click(resetDATA);
-    $('#Default-ignore').click(resetIgnoreDATA);
-    $('#Default-footer').click(resetFootDATA);
+    $('#ipmi-default').click(resetDATA);
+    $('#ignore-default').click(resetIgnoreDATA);
+    $('#footer-default').click(resetFootDATA);
 
     $('#IPMISELD').change(checkSELD);
     checkSELD();
@@ -283,25 +294,22 @@ function resetFootDATA() {
 function checkSELD() {
     if ($('#IPMISELD')[0].selectedIndex < 1 ){
         $('#COMMAND').val('/usr/local/emhttp/plugins/ipmi/scripts/seld_stop');
-        $('#btnApply').prop('disabled', false);
+        $('#btnSELD').prop('disabled', false);
     }else {
         $('#COMMAND').val('/usr/local/emhttp/plugins/ipmi/scripts/seld_start');
-   }
+    }
 
-    if ("<?=$seld_run;?>" === true)
-    {
+    if ("<?=$seld_run;?>" == true){
         $('.seld-run').prop('disabled', true);
-        $('#btnApply').disabled = 'disabled';
         $('#btnTest').show();
-   }else{
-    $('.seld-run').prop('disabled', false);
-        $('#btnApply').prop('disabled', false);
+    }else{
+        $('.seld-run').prop('disabled', false);
         $('#btnTest').hide();
     }
 }
 
 function decData() {
- $('#PASSWORD').val(atob($('#PASSWORD').val()));
+    $('#PASSWORD').val(atob($('#PASSWORD').val()));
 }
 
 function checkNETWORK() {
@@ -309,8 +317,9 @@ function checkNETWORK() {
         $('.ipmi-lan').hide();
     else {
         $('.ipmi-lan').show();
-        $('.ipmi-lan').prop('disabled', ($('#IPMISELD').val() === 'enable'));
-   }
+        $('.ipmi-run').prop('disabled', ("<?=$seld_run;?>" == true));
+        $('.ipmi-run').prop('disabled', ("<?=$fanctrl_run;?>" == true));
+    }
 }
 
 function checkLOCAL() {
