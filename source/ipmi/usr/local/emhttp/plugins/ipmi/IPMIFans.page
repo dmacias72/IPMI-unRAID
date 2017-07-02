@@ -17,7 +17,7 @@ Markdown="false"
 <dl>
     <dt>Fan Control:</dt>
     <dd>
-        <select id="FANCONTROL" name="FANCONTROL" class="fanctrl" size="1" title="Enable fan control based on selected temperature sensors">
+        <select id="FANCONTROL" name="FANCONTROL" size="1" title="Enable fan control based on selected temperature sensors">
         <?=mk_option($fanctrl, 'disable', 'No')?>
         <?=mk_option($fanctrl, 'enable', 'Yes')?>
         </select>
@@ -29,7 +29,7 @@ Markdown="false"
 <dl>
     <dt>Temperature Polling Time:</dt>
     <dd>
-        <select id="FANPOLL" class="fanctrl fanctrl-run" name="FANPOLL" size="1" title="Amount of time between ipmi temperature checks">
+        <select id="FANPOLL" class="fanctrl-run" name="FANPOLL" size="1" title="Amount of time between ipmi temperature checks">
         <?=mk_option($fanpoll, '1', '10 sec');?>
         <?=mk_option($fanpoll, '2', '20 sec');?>
         <?=mk_option($fanpoll, '3', '30 sec');?>
@@ -50,12 +50,31 @@ Markdown="false"
     <p>Specify how long between checking the temperature sensors and executing fan speed changes.  Default is 3 minutes.</p>
 </blockquote>
 
+<dl>
+    <dt>Hard Drive Polling Time:</dt>
+    <dd>
+        <select id="HDDPOLL" class="fanctrl-run" name="HDDPOLL" size="1" title="Amount of time between hard drive temperature checks">
+        <?=mk_option($hddpoll, '6', '1 min');?>
+        <?=mk_option($hddpoll, '12', '2 min');?>
+        <?=mk_option($hddpoll, '18', '3 min');?>
+        <?=mk_option($hddpoll, '24', '4 min');?>
+        <?=mk_option($hddpoll, '30', '5 min');?>
+        <?=mk_option($hddpoll, '60', '10 min');?>
+        <?=mk_option($hddpoll, '90', '15 min');?>
+        <?=mk_option($hddpoll, '180', '30 min');?>
+        </select>
+    </dd>
+</dl>
+<blockquote class="inline_help">
+    <p>Specify how long between checking hard drive temperatures.  Default is 3 minutes.</p>
+</blockquote>
+
 <?if ($netsvc == 'enable'):?>
 
 <dl>
     <dt>Fan Control IP Address:</dt>
     <dd>
-        <select id="FANIP" class="fanctrl fanctrl-run" name="FANIP" size="1" title="ip address of ipmi fan to control">
+        <select id="FANIP" class="fanctrl-run" name="FANIP" size="1" title="ip address of ipmi fan to control">
         <?get_fanip_options();?>
     </select>
     </dd>
@@ -69,9 +88,9 @@ Markdown="false"
 &nbsp;
 
 <dl>
-    <dt><input id="FAN_DEFAULT" class="fanctrl" type="button" value="Default" title="loads the default values for fan control">
+    <dt><input id="FAN_DEFAULT" class="fanctrl-run" type="button" value="Default" title="loads the default values for fan control">
     <?if ($board === 'ASRock' || $board === 'ASRockRack'):?>
-        <input id="btnConfig" class="fanctrl fanctrl-run" type="button" value="Configure" title="tests your fans and determines their location for fan control">
+        <input id="btnConfig" class="fanctrl-run" type="button" value="Configure" title="tests your fans and determines their location for fan control">
     <?endif;?>
     </dt>
     <dd><input id="btnFANApply" type="submit" value="Apply"><input type="button" value="Done" onClick="done()"></dd>
@@ -195,6 +214,7 @@ $(function(){
 function resetFANDATA() {
     $('#FANCONTROL')[0].selectedIndex = 0;
     $('#FANPOLL')[0].selectedIndex = 5;
+    $('#HDDPOLL')[0].selectedIndex = 2;
     $('#FANIP')[0].selectedIndex = 0;
     $('#fanctrl_settings').submit();
 }
