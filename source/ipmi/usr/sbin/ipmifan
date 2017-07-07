@@ -25,7 +25,6 @@ Usage: $prog [options]
       --full       set fans to full speed
   -f, --force      force start
   -q, --quiet      suppress all messages
-  -v, --verbose    print all messages
       --debug      turn on debugging
       --daemon     run in the background
       --help       display this help and exit
@@ -35,7 +34,7 @@ Usage: $prog [options]
 
 EOF;
 
-$shortopts = 'adfqv';
+$shortopts = 'adfq';
 $longopts = [
     'auto',
     'daemon',
@@ -45,7 +44,6 @@ $longopts = [
     'help',
     'quit',
     'quiet',
-    'verbose',
     'version'
 ];
 $args = getopt($shortopts, $longopts);
@@ -64,7 +62,6 @@ $arga   = (array_key_exists('a', $args) || array_key_exists('auto', $args));
 $argf   = (array_key_exists('full', $args));
 $force  = (array_key_exists('f', $args) || array_key_exists('force', $args));
 $argq   = (array_key_exists('q', $args) || array_key_exists('quiet', $args));
-$argv   = (array_key_exists('v', $args) || array_key_exists('verbose', $args));
 $debug  = (array_key_exists('debug', $args));
 $daemon = (array_key_exists('d', $args) || array_key_exists('daemon', $args));
 $quit   = (array_key_exists('quit', $args));
@@ -251,7 +248,7 @@ function get_all_hdds(){
 
 /* get fan and temp sensors */
 function ipmi_fan_sensors() {
-    global $ipmi, $fanopts;
+    global $ipmi, $fanopts, $hdds, $fanpoll, $fanpoll_count, $hddpoll, $hddpoll_count;
 
     // return empty array if no ipmi detected or network options
     if(!$ipmi && empty($fanopts))
@@ -265,7 +262,6 @@ function ipmi_fan_sensors() {
         return [];
 
     // get highest hard drive temp and add sensor
-    $hdds =  get_all_hdds();
     $hdd_temp = get_highest_temp($hdds);
     $output[] = "99,HDD Temperature,Temperature, $hdd_temp,C,Ok";
 
@@ -293,6 +289,10 @@ function ipmi_fan_sensors() {
 
 $fans = $board_json[$board]['fans'];
 $MD5  = md5_file($fancfg_file);
+$hdds =  get_all_hdds();
+$ipmipoll = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
+$fanpoll_count = $fanpoll;
+$hddpoll_count = $hddpoll;
 fanlog('Starting Fan Control');
 
 while(TRUE){ while(TRUE){
@@ -395,23 +395,17 @@ while(TRUE){ while(TRUE){
     /* print variable */
     $defined_vars = get_defined_vars();
 
-    //remove vars from array to save
-    unset($defined_vars['current_hex'],$defined_vars['current_pwm'],$defined_vars['current_pwm2'],$defined_vars['MD5']);
-
-    foreach (array("_GET","_POST","_COOKIE","_FILES","argv","argc","_SERVER") as $i)
+    foreach (array('_GET','_POST','_COOKIE','_FILES','argv','argc','_SERVER') as $i)
         unset($defined_vars[$i]);
 
-    //add saved vars to array for debug print
-    $defined_vars['current_hex'] = $current_hex;
-    $defined_vars['current_pwm'] = $current_pwm;
-    $defined_vars['current_pwm2'] = $current_pwm2;
-    $defined_vars['MD5'] = $MD5;
-    debug("\nDECLARED VARIABLES:\n".print_r($defined_vars, true));
+    if($debug)
+        debug("\nDECLARED VARIABLES:\n".print_r($defined_vars, true));
+
     unset($defined_vars);
 
     $time1 = time();
 
-    for ($i=0; $i < $fanpoll ; $i++) {
+    for ($i=0; $i < $ipmipoll ; $i++) {
         sleep(10);
         $MD5_new = md5_file($fancfg_file);
         if((file_exists($fancfg_file)) && ($MD5_new != $MD5)){
