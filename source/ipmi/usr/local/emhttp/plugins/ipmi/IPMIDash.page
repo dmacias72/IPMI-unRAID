@@ -12,7 +12,7 @@ table.tablesorter tbody tr:nth-child(odd) {
     background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'F0F0F0' : '202020';?>;
 }
 table.tablesorter tbody tr:nth-child(even) {
-    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'E0E0E0' : '1b1d1b';?>;
+    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'e4e2e4' : '1b1d1b';?>;
 }
 </style>
 
@@ -22,7 +22,7 @@ table.tablesorter tbody tr:nth-child(even) {
 </table>
 
 <?if (floatval($var['version']) < 6.4):?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.combined.min.js" integrity="sha256-yZK2xfWbDpFuKS9ePpiTtRQlWree+/wtT/xevo8L8WE=" crossorigin="anonymous"></script>
+    <script src="/plugins/ipmi/js/jquery.tablesorter.combined.min.js"></script>
 <?endif;?>
 
 <script>
