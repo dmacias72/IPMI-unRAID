@@ -49,10 +49,7 @@ table.tablesorter tbody tr:nth-child(even) {
     </blockquote>
 </div>
 
-<?if (floatval($var['version']) < 6.4):?>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.29.0/js/jquery.tablesorter.combined.min.js" integrity="sha256-yZK2xfWbDpFuKS9ePpiTtRQlWree+/wtT/xevo8L8WE=" crossorigin="anonymous"></script>
-<?endif;?>
-
+<script src="/plugins/ipmi/js/jquery.tablesorter.combined.min.js"></script>
 <script src="/plugins/ipmi/js/jquery.tablesorter.pager.min.js"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 
@@ -95,7 +92,7 @@ $(function(){
         sortReset: true,
         sortRestart : true,
         sortInitialOrder: 'asc',
-        widgets: ['saveSort', 'filter', 'stickyHeaders','zebra'],
+        widgets: ['saveSort', 'filter', 'stickyHeaders'],
         widgetOptions: {
             stickyHeaders_offset: ($('#header').css("position") === "fixed") ? '90' : '0',
             stickyHeaders_attachTo: null,
