@@ -180,7 +180,7 @@ Sensor #4:
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.11/jquery.mask.min.js" integrity="sha256-f4H9UFZcQrKNDBMe5V3OIUcs/j7z9VcuBPJ5uYmBSdU=" crossorigin="anonymous"></script>
+<script src="/plugins/ipmi/js/jquery.mask.min.js"></script>
 <script src="/webGui/javascript/jquery.switchbutton.js"></script>
 
 <script>
@@ -197,9 +197,11 @@ $(function(){
         });
     <?endif;?>
 
+    initDropdown(false);
 
-    DDCheckList('#select','#IGNORE','Select Sensors (unchecked will be ignored)');
-    DDCheckList('#select-dash','#DIGNORE','Select Sensors (uncheck all will disable)');
+    $('#tab1').click(function(){
+        initDropdown(true);
+    });
 
     // if png is missing, replaced with unknown.png
     $('#board-img')
@@ -215,10 +217,6 @@ $(function(){
     $('#tab5').click(function() {
         $.cookie('one', 'tab1', { expires:null, path: '/'});
         location = '/Settings/IPMITools';
-    });
-
-    $('#tab1').click(function() {
-        location.reload();
     });
 
     $('#ipmi-default').click(resetDATA);
@@ -237,20 +235,29 @@ $(function(){
     decData(document.seld_settings);
 });
 
-function DDCheckList(Select,Values,Message) {
+function initDropdown(remove) {
+  if (remove) {
+    $('#IGNORE').dropdownchecklist('destroy');
+    $('#DIGNORE').dropdownchecklist('destroy');
+  }
+  DDCheckList('#select','#IGNORE');
+  DDCheckList('#select-dash','#DIGNORE');
+}
+
+function DDCheckList(Select,Values) {
     $(Select).dropdownchecklist( {
         emptyText: 'No Sensors Available',
         icon: {placement: 'right', toOpen: 'ui-icon-triangle-1-s', toClose: 'ui-icon-triangle-1-n'},
         width: 235,
         explicitClose: 'close',
         firstItemChecksAll: true,
-        textFormatFunction: function(options) { return Message; },
+        textFormatFunction: function(options) { return 'Select (unchecked will be ignored)'; },
         onComplete: function(selector){
             var values = '';
             var Unchecked = 1;
             var Size = selector.options.length;
             for( i=1; i < Size; i++ ) {
-                if ((selector.options[i].selected === false) && (selector.options[i].value !== '')){
+                if ((selector.options[i].selected == false) && (selector.options[i].value !== '')){
                     if (values != '')
                         values += ',';
                 values += selector.options[i].value;
@@ -259,7 +266,7 @@ function DDCheckList(Select,Values,Message) {
         }
         $(Values).val(values);
 
-            if(Size === Unchecked)
+            if(Size == Unchecked)
                 $(Select+'-svc').val('disable');
             else
                 $(Select+'-svc').val('enable');
