@@ -70,7 +70,7 @@ $(function(){
         sortReset: true,
         sortRestart : true,
         sortInitialOrder: 'asc',
-        widgets: ['saveSort', 'filter', 'stickyHeaders', 'zebra'],
+        widgets: ['saveSort', 'filter', 'stickyHeaders'],
         widgetOptions: {
             stickyHeaders_offset: ($('#header').css("position") === "fixed") ? '90' : '0',
             stickyHeaders_attachTo: null,
