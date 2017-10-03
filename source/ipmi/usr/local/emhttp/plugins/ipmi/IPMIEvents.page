@@ -45,7 +45,7 @@ Markdown="false"
         <p>Table is split into pages. Drop down selects the number of rows to display per page. Reset button resets the table filters.</p>
     </blockquote>
 </div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.28.4/js/parsers/parser-network.min.js" integrity="sha256-E0X65/rdWP806UYOzvOzTshT6a3R74j/9UOqcB9+6lc=" crossorigin="anonymous"></script>
+<script src="/plugins/ipmi/js/parser-network.min.js"></script>
 <script>
 $(function(){
     //event archive switch set cookie and toggle archive setting
@@ -53,14 +53,14 @@ $(function(){
         labels_placement: 'left',
         on_label: 'Archive On',
         off_label: 'Archive Off',
-        checked: ($.cookie('ipmi_event_archive') === 1)
+        checked: ($.cookie('ipmi_event_archive') == 1)
     })
     .change(function () {
         $.cookie('ipmi_event_archive', $('#event-arch')[0].checked ? 1 : 0, { expires: 3650 });
         $('#tab3').parent().toggle();
     });
 
-    if($.cookie('ipmi_event_archive') === 1)
+    if($.cookie('ipmi_event_archive') == 1)
         $('#tab3').parent().show();
     else
         $('#tab3').parent().hide();
@@ -72,6 +72,8 @@ $(function(){
         sortInitialOrder: 'asc',
         widgets: ['saveSort', 'filter', 'stickyHeaders', 'zebra'],
         widgetOptions: {
+            stickyHeaders_offset: ($('#header').css("position") === "fixed") ? '90' : '0',
+            stickyHeaders_attachTo: null,
             stickyHeaders_filteredToTop: true,
             filter_hideEmpty : true,
             filter_liveSearch : true,
@@ -151,7 +153,7 @@ function eventArray(){
 function Delete(ID) {
     var EventDelete = '/plugins/ipmi/include/ipmi_event_delete.php';
     var Archive = $.cookie('ipmi_event_archive');
-    if (ID === 0) {
+    if (ID == 0) {
         swal({
             title: 'Are you sure?',
             text: 'You want to remove all events!?',
@@ -161,7 +163,7 @@ function Delete(ID) {
         }, function() {
             $.get(EventDelete, {archive: Archive, event: ID}, function() {
                 $('#tblEvent tbody').empty();
-                if(Archive === 1){
+                if(Archive == 1){
                     archiveArray();
                 }
             });
@@ -180,7 +182,7 @@ function Delete(ID) {
                     trID.remove();
                     $('#tblEvent').trigger('update');
                 });
-            if(Archive === 1){
+            if(Archive == 1){
                 archiveArray();
             }
         });
