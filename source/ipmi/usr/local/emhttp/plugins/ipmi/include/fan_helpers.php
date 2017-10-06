@@ -91,13 +91,6 @@ function get_fanctrl_options(){
                 get_temp_options($fancfg[$tempid]),
                 '</select></dd></dl>';
 
-                // low temperature threshold
-                echo '<dl class="fanctrl-settings">',
-                '<dt><dl><dd>Low temperature threshold (&deg;C):</dd></dl></dt>',
-                '<dd><select name="',$templo,'" class="',$tempid,' fanctrl-settings">',
-                get_temp_range('LO', $fancfg[$templo]),
-                '</select></dd></dl>';
-
                 // high temperature threshold
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>High temperature threshold (&deg;C):</dd></dl></dt>',
@@ -105,16 +98,23 @@ function get_fanctrl_options(){
                 get_temp_range('HI', $fancfg[$temphi]),
                 '</select></dd></dl>';
 
+                // low temperature threshold
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Low temperature threshold (&deg;C):</dd></dl></dt>',
+                '<dd><select name="',$templo,'" class="',$tempid,' fanctrl-settings">',
+                get_temp_range('LO', $fancfg[$templo]),
+                '</select></dd></dl>';
+
                 // fan control maximum speed
                 echo '<dl class="fanctrl-settings">',
-                '<dt><dl><dd>Fan speed maximum (1-64):</dd></dl></dt><dd>',
+                '<dt><dl><dd>Fan speed maximum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmax,'" class="',$tempid,' fanctrl-settings">',
                 get_minmax_options('HI', $fancfg[$fanmax]),
                 '</select></dd></dl>';
 
                 // fan control minimum speed
                 echo '<dl class="fanctrl-settings">',
-                '<dt><dl><dd>Fan speed minimum (1-64):</dd></dl></dt><dd>',
+                '<dt><dl><dd>Fan speed minimum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmin,'" class="',$tempid,' fanctrl-settings">',
                 get_minmax_options('LO', $fancfg[$fanmin]),
                 '</select></dd></dl>&nbsp;';
@@ -198,9 +198,9 @@ function get_minmax_options($range, $selected=0){
 
         // set saved option as selected
         if (intval($selected) === $value)
-            $options .= " selected";
+            $options .= ' selected';
 
-        $options .= ">$value</option>";
+        $options .= '>'.intval(($value/64)*100).'</option>';
     }
     return $options;
 }
@@ -213,7 +213,7 @@ function get_min_options($limit){
             if(intval($limit) === $i)
                 $options .= ' selected';
 
-            $options .= '>'.$i.'</option>';
+            $options .= '>'.intval(($i/64)*100).'</option>';
         }
     return $options;
 }
