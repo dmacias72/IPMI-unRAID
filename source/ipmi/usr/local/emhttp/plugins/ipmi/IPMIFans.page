@@ -97,7 +97,7 @@ Markdown="false"
 </dl>
 <blockquote class="inline_help">
     <p>'Default' loads the default values for fan control.</p>
-    <p>'Configure' button tests your fans and determines their location for fan control. All fans will initially be set to full speed. Each location will be tested at one third speed to determine which fan is present. This will take about 1 min. On completion fans will return to auto and you can start fan control</p>
+    <p>'Configure' button tests your fans and determines their location for fan control. All fans will initially be set to full speed. Each location will be tested at one third speed to determine which fan is present. This will take about 1 min. On completion fans will return to auto. You can start fan control</p>
 </blockquote>
 
 </form>
@@ -114,13 +114,18 @@ Markdown="false"
 <input type="hidden" name="#file" value="ipmi/fan.cfg" />
 
 <div id="fanctrl-options">
+<dl>
+    <dt>&nbsp;</dt>
+    <dd>&nbsp;</dd>
+</dl>
 
 <blockquote class="inline_help">
-    <p>List all fans available for control with current speed and corresponding temperature sensor with its current value.</p>
-    <p>Fan speed minimum (1-64):  Select the lowest value for which a fan can be set. Useful to prevent fan from stopping or going below a certain rpm. A value of 64 is full on.</p>
-    <p>Temperature sensor:  Temperature sensor to monitor when determining fan speed.</p>
-    <p>Low temperature threshold (°C):  Lowest temperature in the linear range to determine fan speed.  Below this temperature the fan will turn off unless minimum is set. </p>
+    <p>List all fans available for control and corresponding temperature sensors. Current speed and temperature values are shown. Fans are controlled linearly based on the temperature range from High to Low.</p>
+    <p>Temperature sensor:  Sensor to monitor when determining fan speed.</p>
     <p>High temperature threshold (°C):  Highest temperature in the linear range to determine fan speed. Above this temperature fan with run at full speed.</p>
+    <p>Low temperature threshold (°C):  Lowest temperature in the linear range to determine fan speed.  Below this temperature the fan will turn off unless minimum is set. </p>
+    <p>Fan speed maximum (1-100%):  Select the highest value a fan can reach. Useful to keep a fan below a certain speed.</p>
+    <p>Fan speed minimum (1-100%):  Select the lowest value a fan can reach. Useful to prevent fan from stopping or going below a certain rpm.</p>
 </blockquote>
 
 <?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None'))) && ($board_status !== false)):?>
