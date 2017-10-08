@@ -189,11 +189,13 @@ $com   = '01';
 $raw    = '00 3a 01';
 $auto   = '00 00 00 00 00 00 00 00';
 $full     = '64 64 64 64 64 64 64 64';
-$fans   = [];
+$board_json = [];
+$board_tmp = $board;
 
 fanlog('Checking IPMI fan Locations...');
 
 for($i = 0; $i <= $sockets; $i++){
+    $fans   = [];
 
     $raw = "${lun} ${netfn} ${i}1";
 
@@ -202,9 +204,11 @@ for($i = 0; $i <= $sockets; $i++){
     shell_exec($cmd);
     sleep(5);
     $fans_full = ipmi_sensors_fans();
+    $fans_start = ($sockets > 0) ? 1 : 0;
+    $fans_count = ($sockets > 0) ? 6 : 7;
 
 // step through each raw command position
-    for($ii = 0; $ii <= 7; $ii++){
+    for($ii = $fans_start; $ii <= $fans_count; $ii++){
         $msg  = 'none';
         $name = 'FAN_POS'.($ii+1);
 
@@ -227,20 +231,23 @@ for($i = 0; $i <= $sockets; $i++){
         }
         unset($fans_1third);
         $fans[$name] = '00';
-        fanlog('Location '.($ii+1).': '.$msg);
+        fanlog("Location $i-".($ii+1).': '.$msg);
     }
 
     $cmd = "ipmi-raw $raw $auto $fanopts 2>&1";
     shell_exec($cmd);
-}
 
-$board_json = [ $board =>
+    if ($i > 0)
+        $board_tmp = $board.$i;
+
+    $board_json[$board_tmp] =
         [ 'raw'   => $raw,
           'auto'  => $auto,
           'full'  => $full,
           'fans'  => $fans
-    ]
-];
+        ];
+
+}
 
 fanlog('Saving board configuration...');
 file_put_contents($board_file, json_encode($board_json,JSON_PRETTY_PRINT));
