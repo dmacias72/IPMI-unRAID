@@ -176,7 +176,7 @@ function ipmi_sensors_fans() {
 # ipmi-raw 00 3a 01 CPU_1_OVERRIDE CPU_1 REAR_1 FRONT_1 FRONT_2 FRONT_3
 # ipmi-raw 00 3a 11 CPU_2_OVERRIDE CPU_2 REAR_2 FRONT_4
 # ipmi-raw 00 3a 01 00 AA BB CC DD EE
-# ipmi-raw 00 3a 11 00 AA BB CC DD EE
+# ipmi-raw 00 3a 11 00 AA BB CC
 #############################################
 #
 
@@ -206,6 +206,11 @@ fanlog('Checking IPMI fan Locations...');
 
 for($i = 0; $i <= $sockets; $i++){
     $fans   = [];
+    if ($i > 0){
+        $fans_count = 3;
+        $auto  = '00 00 00 00';
+        $full  = '01 64 64 64';
+    }
 
     $raw = "${lun} ${netfn} ${i}1";
 
