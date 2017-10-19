@@ -3,9 +3,10 @@
 $fancfg_file = "$plg_path/fan.cfg";
 if (file_exists($fancfg_file))
     $fancfg = parse_ini_file($fancfg_file);
-$fanctrl = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
-$fanpoll = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
-$hddpoll = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
+$fanctrl   = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
+$fanpoll   = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
+$hddpoll   = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
+$hddignore = isset($fancfg['HDDIGNORE'])  ? explode(',', $fancfg['HDDIGNORE'])      : [];
 
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
@@ -13,7 +14,9 @@ $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchar
 $boards = ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''];
 $board = trim(shell_exec("dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'"));
 $board_model  = trim(shell_exec("dmidecode -t 2 | grep 'Product Name' | awk -F 'e:' '{print $2}'"));
+$sockets = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
 $board_status  = array_key_exists($board, $boards);
+
 
 if($board !== 'Supermicro'){
     $board_file = "$plg_path/board.json";
