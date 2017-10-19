@@ -182,7 +182,7 @@ function ipmi_sensors_fans() {
 
 ####  DO YOUR STUFF HERE  ####
 
-$sockets = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
+
 $lun   = '00';
 $netfn = '3a';
 $com   = '01';
