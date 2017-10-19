@@ -76,7 +76,12 @@ function get_fanctrl_options(){
                 $noconfig = '<font class="red"><b><i> (fan is not configured!)</i></b></font>';
                 if($board_file_status){
                     if(!array_key_exists($name, $board_json[$board]['fans']))
-                        echo $noconfig;
+                        if ($sockets > 0){
+                            if(!array_key_exists($name, $board_json["${board}1"]['fans']))
+                                echo $noconfig;
+                        }else{
+                            echo $noconfig;
+                        }
                 } else {
                     echo $noconfig;
                 }
