@@ -129,7 +129,27 @@ Markdown="false"
 </blockquote>
 
 <?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None'))) && ($board_status !== false)):?>
+
+    <dl>
+        <dt>Hard Drives to Poll:</dt>
+        <dd>
+            <select multiple id="select-drives" title="Select hard drives that are polled for fan control">
+                <option value="">Select All</option>
+                <?=get_hdd_options($hddignore);?>
+            </select>
+        </dd>
+        <input type="hidden" id="HDDIGNORE" name="HDDIGNORE" value="<?=htmlspecialchars($hddignore);?>" />
+
+        <input type="hidden" id="select-drives-svc" name="HARDDRIVES" value="<?=htmlspecialchars($harddrives);?>">
+    </dl>
+    <blockquote class="inline_help">
+        <p>Select Hard Drives to poll for HDD Temperature</p>
+    </blockquote>
+
+    &nbsp;
+
     <?get_fanctrl_options();?>
+
 <?endif;?>
 </div>
 &nbsp;
@@ -162,12 +182,15 @@ if(is_file($log)){
 
 <script>
 $(function(){
-    <?if ($board_status !== false):?>
+    initDriveDropdown(false);
 
     // check if board supports ipmi
     $('#tab2').click(function() {
         checkBoard();
+        initDriveDropdown(true);
     });
+
+    <?if ($board_status !== false):?>
 
     if($.cookie('one') == 'tab2')
         checkBoard();
@@ -187,6 +210,7 @@ $(function(){
 
     toggleFanCTRL();
 
+    // toggle auto disables settings
     $('.fanctrl-temp')
         .each(function() {
             var FanName = '.' + $(this).attr('name');
@@ -215,6 +239,14 @@ $(function(){
     });
 
 });
+
+function initDriveDropdown(remove) {
+
+    if (remove){
+        $('#select-drives').dropdownchecklist('destroy');
+    }
+    DDCheckList('#select-drives','#HDDIGNORE');
+}
 
 function resetFANDATA() {
     $('#FANCONTROL')[0].selectedIndex = 0;
