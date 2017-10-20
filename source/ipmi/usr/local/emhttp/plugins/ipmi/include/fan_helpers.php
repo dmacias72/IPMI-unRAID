@@ -1,4 +1,6 @@
 <?
+require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_drives.php';
+
 /* get fan and temp sensors array */
 function ipmi_fan_sensors($ignore=null) {
     global $ipmi, $fanopts, $hdd_temp;
@@ -236,5 +238,21 @@ function get_fanip_options(){
             $options .= '>'.$ip.'</option>';
         }
     echo $options;
+}
+
+function get_hdd_options($ignore=null) {
+    $hdds = get_all_hdds();
+    $ignored = array_flip(explode(',', $ignore));
+    foreach ($hdds as $hdd => $serial) {
+        $hdd = preg_replace('/\/dev\//', '', $hdd);
+        $options .= "<option value='$serial'";
+
+        // search for id in array to not select ignored sensors
+        $options .= array_key_exists($serial, $ignored) ?  '' : " selected";
+
+        $options .= ">$serial ($hdd)</option>";
+
+    }
+    return $options;
 }
 ?>
