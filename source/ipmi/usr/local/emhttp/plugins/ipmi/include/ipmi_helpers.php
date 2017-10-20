@@ -200,7 +200,7 @@ function ipmi_get_enabled($ignore){
         $id       = $sensor['ID'];
         $reading  = $sensor['Reading'];
         $units    = ($reading === 'N/A') ? '' : " ${sensor['Units']}";
-        $ip       = (empty($netopts))   ? '' : " ${sensor['IP']}";
+        $ip       = (empty($netopts))    ? '' : " ${sensor['IP']}";
         $options .= "<option value='$id'";
 
         // search for id in array to not select ignored sensors
