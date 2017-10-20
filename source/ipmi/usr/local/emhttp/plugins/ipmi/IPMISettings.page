@@ -197,10 +197,10 @@ $(function(){
         });
     <?endif;?>
 
-    initDropdown(false);
+    initIgnoreDropdown(false);
 
     $('#tab1').click(function(){
-        initDropdown(true);
+        initIgnoreDropdown(true);
     });
 
     // if png is missing, replaced with unknown.png
@@ -235,20 +235,20 @@ $(function(){
     decData(document.seld_settings);
 });
 
-function initDropdown(remove) {
-  if (remove) {
-    $('#IGNORE').dropdownchecklist('destroy');
-    $('#DIGNORE').dropdownchecklist('destroy');
-  }
-  DDCheckList('#select','#IGNORE');
-  DDCheckList('#select-dash','#DIGNORE');
+function initIgnoreDropdown(remove) {
+    if (remove) {
+        $('#select').dropdownchecklist('destroy');
+        $('#select-dash').dropdownchecklist('destroy');
+    }
+    DDCheckList('#select','#IGNORE');
+    DDCheckList('#select-dash','#DIGNORE');
 }
 
 function DDCheckList(Select,Values) {
     $(Select).dropdownchecklist( {
-        emptyText: 'No Sensors Available',
+        emptyText: 'Nothing Available',
         icon: {placement: 'right', toOpen: 'ui-icon-triangle-1-s', toClose: 'ui-icon-triangle-1-n'},
-        width: 235,
+        width: 300,
         explicitClose: 'close',
         firstItemChecksAll: true,
         textFormatFunction: function(options) { return 'Select (unchecked will be ignored)'; },
