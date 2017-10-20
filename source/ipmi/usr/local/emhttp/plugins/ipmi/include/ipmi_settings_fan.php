@@ -6,7 +6,7 @@ if (file_exists($fancfg_file))
 $fanctrl   = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
 $fanpoll   = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
 $hddpoll   = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
-$hddignore = isset($fancfg['HDDIGNORE'])  ? explode(',', $fancfg['HDDIGNORE'])      : [];
+$hddignore = isset($fancfg['HDDIGNORE'])  ? $fancfg['HDDIGNORE']                    : '';
 
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
