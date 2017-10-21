@@ -164,7 +164,7 @@ if ($socket0){
 
 fanlog('Checking IPMI fan Locations...');
 
-for($i = 0; $i <= $sockets; $i++){
+for($i = 0; $i <= $cmd_count; $i++){
     $fans   = [];
     if ($i > 0){
         $fans_count = 3;
@@ -188,7 +188,7 @@ for($i = 0; $i <= $sockets; $i++){
 // step through each raw command position
     for($ii = $fans_start; $ii <= $fans_count; $ii++){
         $msg  = 'none';
-        $location = ($sockets < 1 ? ($ii+1) : $ii);
+        $location = ($cmd_count < 1 ? ($ii+1) : $ii);
         $name = 'FAN_POS'.$location;
 
         // set postition in raw command to 1/3 and get readings
