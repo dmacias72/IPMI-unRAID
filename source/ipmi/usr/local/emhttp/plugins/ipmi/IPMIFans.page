@@ -227,18 +227,6 @@ $(function(){
 
     $('#FAN_DEFAULT').click(resetFANDATA);
     $('#FANCONTROL').click(checkFANCTRL)
-/*    $('#FANPOLL').change(function(){
-        if (parseInt($(this).val()) > parseInt($('#HDDPOLL').val())){
-            $('#HDDPOLL').val($(this).val());
-        }
-    });
-
-    $('#HDDPOLL').change(function(){
-        if (parseInt($(this).val()) < parseInt($('#FANPOLL').val())){
-            $('#FANPOLL').val($(this).val());
-        }
-    });
-*/
     checkFANCTRL();
 
     <?endif;?>
