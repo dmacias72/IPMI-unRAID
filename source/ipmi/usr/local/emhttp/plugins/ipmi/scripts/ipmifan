@@ -137,6 +137,14 @@ if($daemon){
 #############################################
 
 #############################################
+# ASRock Dual Socket
+# ipmi-raw 00 3a 01 CPU_1_OVERRIDE CPU_1 REAR_1 FRONT_1 FRONT_2 FRONT_3
+# ipmi-raw 00 3a 11 CPU_2_OVERRIDE CPU_2 REAR_2 FRONT_4
+# ipmi-raw 00 3a 01 00 AA BB CC DD EE
+# ipmi-raw 00 3a 11 00 AA BB CC
+#############################################
+
+#############################################
 # Supermicro
 # ipmi-raw 00 30 70 66 01 00 64
 # ipmi-raw 00 30 70 66 AA BB CC
@@ -269,7 +277,6 @@ function ipmi_fan_sensors() {
 #####  PROGRAM SECTION  ######
 ##############################
 
-$fans      = $board_json[$board]['fans'];
 $MD5       = md5_file($fancfg_file);
 $hdds      =  get_all_hdds();
 $ipmipoll  = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
@@ -299,93 +306,99 @@ while(TRUE){ while(TRUE){
     $cmd = '';
     $exec = false;
 
-    foreach($fans as $fan => $value){
+    for($i = 0; $i <= $sockets; $i++){
+        $board0 = ($i < 1) ? '' : $i;
+        $raw  = $board_json[$board.$board0]['raw'];
+        $fans = $board_json[$board.$board0]['fans'];
 
-        $temp = isset($fancfg["TEMP_$fan"]) ? $fancfg["TEMP_$fan"] : '';
+        foreach($fans as $fan => $value){
 
-        if(!empty($temp)) {
-            $templo  = (isset($fancfg["TEMPLO_$fan"])) ? intval($fancfg["TEMPLO_$fan"])  : 30;
-            $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 45;
-            $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 16;
-            $fanmax  = (isset($fancfg["FANMAX_$fan"])) ? intval($fancfg["FANMAX_$fan"])  : 64;
-            $reading = floatval($sensors[$temp]['Reading']);
-            $name    = htmlspecialchars($sensors[$temp]['Name']);
+            $temp = isset($fancfg["TEMP_$fan"]) ? $fancfg["TEMP_$fan"] : '';
 
-            if ($reading <= $templo){
-                $pct = 0;
-                $pwm = 1;
-            }elseif ($reading >= $temphi){
-                $pct = 1;
-                $pwm = 64;
+            if(!empty($temp)) {
+                $templo  = (isset($fancfg["TEMPLO_$fan"])) ? intval($fancfg["TEMPLO_$fan"])  : 30;
+                $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 45;
+                $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 16;
+                $fanmax  = (isset($fancfg["FANMAX_$fan"])) ? intval($fancfg["FANMAX_$fan"])  : 64;
+                $reading = floatval($sensors[$temp]['Reading']);
+                $name    = htmlspecialchars($sensors[$temp]['Name']);
+
+                if ($reading <= $templo){
+                    $pct = 0;
+                    $pwm = 1;
+                }elseif ($reading >= $temphi){
+                    $pct = 1;
+                    $pwm = 64;
+                }else{
+                    $pct = ($reading-$templo)/($temphi-$templo);
+                    $pwm = round(($pct)*16)*4;
+                }
+                //impose fan lower limit
+                if ($pwm <= $fanmin){
+                    $pwm  = $fanmin;
+                    $pct  = $fanmin/64;
+                }
+
+                //impose fan upper limit
+                if ($pwm >= $fanmax){
+                    $pwm  = $fanmax;
+                    $pct  = $fanmax/64;
+                }
+
+                //pad pwm to 2 places
+                $pwm = str_pad($pwm, 2, '0', STR_PAD_LEFT);
+
+                //add fan, value, temp sensor name and reading
+                if(!empty($msg))
+                    $msg .= ',';
+                $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
+                $msg .= " $fan($pct%):$name(${reading}°C)";
+
+           }else{
+                $pwm ='00';
+           }
+
+            if($board !== 'Supermicro'){
+                //add value to hex
+                $hex .= " $pwm";
             }else{
-                $pct = ($reading-$templo)/($temphi-$templo);
-                $pwm = round(($pct)*16)*4;
-            }
-            //impose fan lower limit
-            if ($pwm <= $fanmin){
-                $pwm  = $fanmin;
-                $pct  = $fanmin/64;
-            }
+                $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
 
-            //impose fan upper limit
-            if ($pwm >= $fanmax){
-                $pwm  = $fanmax;
-                $pct  = $fanmax/64;
-            }
+                if($value == '00' && $current_pwm !== $pwm && $pwm !== '00'){
+                    $cmd .= $cmd_str;
 
-            //pad pwm to 2 places
-            $pwm = str_pad($pwm, 2, '0', STR_PAD_LEFT);
+                    //set current value for next loop
+                    $current_pwm  = $pwm;
+                    $exec = true;
+                }
+                if($value == '01' && $current_pwm2 !== $pwm && $pwm !== '00'){
+                    $cmd .= $cmd_str;
 
-            //add fan, value, temp sensor name and reading
-            if(!empty($msg))
-                $msg .= ',';
-            $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
-            $msg .= " $fan($pct%):$name(${reading}°C)";
-
-       }else{
-            $pwm ='00';
-       }
-
-        if($board !== 'Supermicro'){
-            //add value to hex
-            $hex .= " $pwm";
-        }else{
-            $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
-
-            if($value == '00' && $current_pwm !== $pwm && $pwm !== '00'){
-                $cmd .= $cmd_str;
-
-                //set current value for next loop
-                $current_pwm  = $pwm;
-                $exec = true;
-            }
-            if($value == '01' && $current_pwm2 !== $pwm && $pwm !== '00'){
-                $cmd .= $cmd_str;
-
-                //set current value for next loop
-                $current_pwm2 = $pwm;
-                $exec = true;
+                    //set current value for next loop
+                    $current_pwm2 = $pwm;
+                    $exec = true;
+                }
             }
         }
+
+        //compare last value to new value
+        if($current_hex != $hex && $board !== 'Supermicro'){
+            $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
+
+            //set current value for next loop
+            $current_hex = $hex;
+            $exec = true;
+        }
+
+        // execute command if exec set
+        if($exec){
+            shell_exec($cmd);
+            //fanlog($cmd);
+
+            //log changes
+            fanlog($msg);
+        }
     }
-
-    //compare last value to new value
-    if($current_hex != $hex && $board !== 'Supermicro'){
-        $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
-
-        //set current value for next loop
-        $current_hex = $hex;
-        $exec = true;
-    }
-
-    // execute command if exec set
-    if($exec){
-        shell_exec($cmd);
-
-        //log changes
-        fanlog($msg);
-    }
-
     /* print variable */
     $defined_vars = get_defined_vars();
 
