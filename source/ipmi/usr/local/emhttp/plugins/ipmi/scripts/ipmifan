@@ -215,9 +215,10 @@ function fullfan() {
 /* get highest temp of hard drives */
 function get_highest_temp($hdds){
     global $hddignore;
+    $ignore = explode(',', $hddignore);
     $highest_temp = 0;
     foreach ($hdds as $hdd => $serial) {
-        if (!array_key_exists($serial, $hddignore)) {
+        if (!array_key_exists($serial, $ignore)) {
             if (shell_exec("hdparm -C ${hdd} 2>/dev/null| grep -c standby") == 0){
                 $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A ${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
                 $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
@@ -230,7 +231,7 @@ function get_highest_temp($hdds){
 
 /* get fan and temp sensors */
 function ipmi_fan_sensors() {
-    global $ipmi, $fanopts, $hdds, $fanpoll, $fanpoll_count, $hddpoll, $hddpoll_count;
+    global $ipmi, $fanopts, $hdd_temp;
 
     // return empty array if no ipmi detected or network options
     if(!$ipmi && empty($fanopts))
@@ -243,8 +244,7 @@ function ipmi_fan_sensors() {
     if($return_var)
         return [];
 
-    // get highest hard drive temp and add sensor
-    $hdd_temp = get_highest_temp($hdds);
+    // add hard drive temp as a sensor
     $output[] = "99,HDD Temperature,Temperature, $hdd_temp,C,Ok";
 
     // key names for ipmi sensors output
@@ -269,19 +269,31 @@ function ipmi_fan_sensors() {
 #####  PROGRAM SECTION  ######
 ##############################
 
-$fans = $board_json[$board]['fans'];
-$MD5  = md5_file($fancfg_file);
-$hdds =  get_all_hdds();
-$ipmipoll = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
-$fanpoll_count = $fanpoll;
-$hddpoll_count = $hddpoll;
+$fans      = $board_json[$board]['fans'];
+$MD5       = md5_file($fancfg_file);
+$hdds      =  get_all_hdds();
+$ipmipoll  = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
+$fan_count = $fanpoll * 10;
+$hdd_count = $hddpoll * 10;
+$hdd_temp  = get_highest_temp($hdds);
+$sensors   = ipmi_fan_sensors();
 fanlog('Starting Fan Control');
 
 while(TRUE){ while(TRUE){
 ####  DO YOUR STUFF HERE  ####
 
-    /* Get sensor info */
-    $sensors = ipmi_fan_sensors();
+    /* Refresh hdd temp if time is expired */
+    if ($hdd_count <= 0) {
+        $hdd_count = $hddpoll * 10;
+        $hdd_temp = get_highest_temp($hdds);
+        $sensors['99']['Reading'] = $hdd_temp;
+    }
+    /* Get sensor info if time is expired */
+    if ($fan_count <= 0) {
+        $fan_count = $fanpoll * 10;
+        $sensors = ipmi_fan_sensors();
+    }
+
     $hex = '';
     $msg = '';
     $cmd = '';
@@ -389,6 +401,9 @@ while(TRUE){ while(TRUE){
 
     for ($i=0; $i < $ipmipoll ; $i++) {
         sleep(10);
+        $fan_count = $fan_count - 10;
+        $hdd_count = $hdd_count - 10;
+
         $MD5_new = md5_file($fancfg_file);
         if((file_exists($fancfg_file)) && ($MD5_new != $MD5)){
             $msg = 'fan control config file updated, reloading settings';
