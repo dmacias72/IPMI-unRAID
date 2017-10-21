@@ -278,24 +278,26 @@ function ipmi_fan_sensors() {
 ##############################
 
 $MD5       = md5_file($fancfg_file);
-$hdds      =  get_all_hdds();
+$hdds      = get_all_hdds();
+$hdd_temp  = get_highest_temp($hdds);
+$sensors   = ipmi_fan_sensors();
 $ipmipoll  = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
 $fan_count = $fanpoll * 10;
 $hdd_count = $hddpoll * 10;
-$hdd_temp  = get_highest_temp($hdds);
-$sensors   = ipmi_fan_sensors();
+
 fanlog('Starting Fan Control');
 
 while(TRUE){ while(TRUE){
 ####  DO YOUR STUFF HERE  ####
 
-    /* Refresh hdd temp if time is expired */
+    /* Refresh hdds and hdd temp if hdd poll time is expired */
     if ($hdd_count <= 0) {
         $hdd_count = $hddpoll * 10;
-        $hdd_temp = get_highest_temp($hdds);
+        $hdds      = get_all_hdds();
+        $hdd_temp  = get_highest_temp($hdds);
         $sensors['99']['Reading'] = $hdd_temp;
     }
-    /* Get sensor info if time is expired */
+    /* Get sensor info if fan sensor poll time is expired */
     if ($fan_count <= 0) {
         $fan_count = $fanpoll * 10;
         $sensors = ipmi_fan_sensors();
@@ -306,7 +308,7 @@ while(TRUE){ while(TRUE){
     $cmd = '';
     $exec = false;
 
-    for($i = 0; $i <= $sockets; $i++){
+    for($i = 0; $i <= $cmd_count; $i++){
         $board0 = ($i < 1) ? '' : $i;
         $raw  = $board_json[$board.$board0]['raw'];
         $fans = $board_json[$board.$board0]['fans'];
