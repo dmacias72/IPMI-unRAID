@@ -5,6 +5,7 @@ RC_SCRIPT3="/usr/sbin/ipmifan"
 SD_RCFILE="/etc/rc.d/rc.local_shutdown"
 
 ln -sf /usr/local/emhttp/plugins/ipmi/scripts/ipmi2json /usr/sbin/ipmi2json
+ln -sf /usr/local/emhttp/plugins/ipmi/scripts/ipmifan /usr/sbin/ipmifan
 
 # Update file permissions of scripts
 chmod +0755 /usr/local/emhttp/plugins/ipmi/scripts/* \
