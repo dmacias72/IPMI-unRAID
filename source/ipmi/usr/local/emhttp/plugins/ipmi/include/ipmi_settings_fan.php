@@ -12,10 +12,11 @@ $harddrives = isset($fancfg['HARDDRIVES']) ? $fancfg['HARDDRIVES']              
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
 /* board info */
-$boards = ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''];
-$board = trim(shell_exec("dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'"));
-$board_model  = trim(shell_exec("dmidecode -t 2 | grep 'Product Name' | awk -F 'e:' '{print $2}'"));
-$sockets = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
+$boards        = ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''];
+$board         = trim(shell_exec("dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'"));
+$board_model   = trim(shell_exec("dmidecode -t 2 | grep 'Product Name' | awk -F 'e:' '{print $2}'"));
+$sockets       = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
+$socket0       = ($sockets < 1);
 $board_status  = array_key_exists($board, $boards);
 
 
