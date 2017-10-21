@@ -20,11 +20,7 @@ create a json array for ipmifan script.
 
 Usage: $prog [options]
 
-  -a, --auto       set fans to auto
-      --full       set fans to full speed
   -f, --force      force start
-  -q, --quiet      suppress all messages
-  -v, --verbose    print all messages
       --debug      turn on debugging
       --help       display this help and exit
       --version    output version information and exit
@@ -32,15 +28,11 @@ Usage: $prog [options]
 
 EOF;
 
-$shortopts = 'adfqv';
+$shortopts = 'f';
 $longopts = [
-    'auto',
     'debug',
     'force',
-    'full',
     'help',
-    'quiet',
-    'verbose',
     'version'
 ];
 $args = getopt($shortopts, $longopts);
@@ -51,31 +43,16 @@ if (array_key_exists('help', $args)) {
 }
 
 if (array_key_exists('version', $args)) {
-    echo 'IPMI Fan Check: 1.0'.PHP_EOL;
+    echo 'IPMI 2 JSON: 1.0'.PHP_EOL;
     exit(0);
 }
 
-$arga   = (array_key_exists('a', $args) || array_key_exists('auto', $args));
-$argf   = (array_key_exists('full', $args));
-$force  = (array_key_exists('f', $args) || array_key_exists('force', $args));
-$argq   = (array_key_exists('q', $args) || array_key_exists('quiet', $args));
-$argv   = (array_key_exists('v', $args) || array_key_exists('verbose', $args));
 $debug  = (array_key_exists('debug', $args));
 
 if(file_exists($lockfile) && !$force){
     $lock_pid = file($lockfile, FILE_IGNORE_NEW_LINES)[0];
     fanlog("Please stop ${prog2} [$lock_pid] then try again");
     exit(0);
-}
-
-if($arga){
-        autofan();
-        exit(0);
-}
-
-if($argf){
-        fullfan();
-        exit(0);
 }
 
 if (!array_key_exists($board, $boards)){
@@ -92,8 +69,7 @@ if (!array_key_exists($board, $boards)){
 function fanlog($msg) {
     global $log;
 
-    if (!$quiet)
-        echo PHP_EOL.$msg.PHP_EOL;
+    echo PHP_EOL.$msg.PHP_EOL;
 
     $msg = date('Y-m-d H:i:s').' '.$msg.PHP_EOL;
     file_put_contents($log,$msg,FILE_APPEND);
@@ -107,22 +83,6 @@ function debug($m){
     fwrite($STDERR, $m.PHP_EOL);
     fclose($STDERR);
   }
-}
-
-/* auto fan */
-function autofan() {
-    global $auto, $raw, $fanopts;
-    fanlog('Setting fans to auto');
-    $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
-    shell_exec($cmd);
-}
-
-/* full speed fan */
-function fullfan() {
-    global $full, $raw, $fanopts;
-    fanlog('Setting fans to full speed');
-    $cmd = "ipmi-raw $raw $full $fanopts 2>&1 >/dev/null &";
-    shell_exec($cmd);
 }
 
 /* get fan sensors */
@@ -190,7 +150,7 @@ $raw   = '00 3a 01';
 $board_json = [];
 $board_tmp = $board;
 
-if ($sockets < 1){
+if ($socket0){
     $fans_start = 0;
     $fans_count = 7;
     $auto  = '00 00 00 00 00 00 00 00';
