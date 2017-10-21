@@ -3,10 +3,11 @@
 $fancfg_file = "$plg_path/fan.cfg";
 if (file_exists($fancfg_file))
     $fancfg = parse_ini_file($fancfg_file);
-$fanctrl   = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
-$fanpoll   = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
-$hddpoll   = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
-$hddignore = isset($fancfg['HDDIGNORE'])  ? $fancfg['HDDIGNORE']                    : '';
+$fanctrl    = isset($fancfg['FANCONTROL']) ? htmlspecialchars($fancfg['FANCONTROL']) :'disable';
+$fanpoll    = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])              : 6;
+$hddpoll    = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
+$hddignore  = isset($fancfg['HDDIGNORE'])  ? $fancfg['HDDIGNORE']                    : '';
+$harddrives = isset($fancfg['HARDDRIVES']) ? $fancfg['HARDDRIVES']                   : 'enable';
 
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
