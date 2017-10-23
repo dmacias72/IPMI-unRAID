@@ -69,7 +69,7 @@ function get_fanctrl_options(){
                 echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
                 if ($temp['Name'])
                     echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
-                    $fancfg[$templo],', ',$fancfg[$temphi],', ',$fancfg[$fanmin],'-',$fancfg[$fanmax];
+                    $fancfg[$templo],', ',$fancfg[$temphi],', ',intval($fancfg[$fanmin])/64*100,'-',intval($fancfg[$fanmax])/64*100,'%';
                 else
                     echo 'Auto';
                 echo '</span><span class="fanctrl-settings">&nbsp;</span>';
@@ -78,7 +78,7 @@ function get_fanctrl_options(){
                 $noconfig = '<font class="red"><b><i> (fan is not configured!)</i></b></font>';
                 if($board_file_status){
                     if(!array_key_exists($name, $board_json[$board]['fans']))
-                        if ($sockets > 0){
+                        if ($cmd_count !== 0){
                             if(!array_key_exists($name, $board_json["${board}1"]['fans']))
                                 echo $noconfig;
                         }else{
