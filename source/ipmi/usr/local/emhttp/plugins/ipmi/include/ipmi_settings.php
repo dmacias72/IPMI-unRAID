@@ -28,7 +28,7 @@ $dashfile = "$plg_path/ipmidash";
 $dashlock = (file_exists($dashfile));
 if($dash === 'enable'){
     if(!$dashlock)
-        file_put_contents($dashfile, '');
+        file_put_contents($dashfile, 'Display dashboard if this file exists');
 }else{
     if($dashlock)
         unlink($dashfile);
