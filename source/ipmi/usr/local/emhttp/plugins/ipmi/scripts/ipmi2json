@@ -150,7 +150,7 @@ $raw   = '00 3a 01';
 $board_json = [];
 $board_tmp = $board;
 
-if ($socket0){
+if ($cmd_count == 0){
     $fans_start = 0;
     $fans_count = 7;
     $auto  = '00 00 00 00 00 00 00 00';
@@ -166,7 +166,7 @@ fanlog('Checking IPMI fan Locations...');
 
 for($i = 0; $i <= $cmd_count; $i++){
     $fans   = [];
-    if ($i > 0){
+    if ($i !== 0){
         $fans_count = 3;
         $auto  = '00 00 00 00';
         $full  = '01 64 64 64';
