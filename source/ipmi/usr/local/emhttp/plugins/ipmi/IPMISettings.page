@@ -220,6 +220,7 @@ $(function(){
     });
 
     $('#ipmi-default').click(resetDATA);
+    $('#seld-default').click(resetSeldDATA);
     $('#ignore-default').click(resetIgnoreDATA);
     $('#footer-default').click(resetFootDATA);
 
@@ -275,19 +276,23 @@ function DDCheckList(Select,Values) {
 }
 
 function resetDATA() {
-    $('#IPMIPOLL')[0].selectedIndex = 2;
     $('#NETWORK')[0].selectedIndex = 0;
     $('#LOCAL')[0].selectedIndex = 0;
     $('#IPADDR').val('');
     $('#USER').val('');
     $('#PASSWORD').val('');
-    $('#settings-seld').submit();
+    $('#settings-ipmi').submit();
 }
 
 function resetIgnoreDATA() {
     $('#IGNORE').val('');
     $('#DIGNORE').val('');
     $('#settings-ignore').submit();
+}
+
+function resetSeldDATA() {
+    $('#IPMIPOLL')[0].selectedIndex = 2;
+    $('#settings-seld').submit();
 }
 
 function resetFootDATA() {
