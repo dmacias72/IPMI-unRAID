@@ -232,7 +232,7 @@ function get_highest_temp($hdds){
                 $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
             }
         }
-  }
+    }
     debug("Highest temp is ${highest_temp}ºC");
     return $highest_temp;
 }
@@ -304,14 +304,14 @@ while(TRUE){ while(TRUE){
     }
 
     $hex = '';
-    $msg = '';
+    $msg = 'Fan:Temp';
     $cmd = '';
     $exec = false;
 
     for($i = 0; $i <= $cmd_count; $i++){
-        $board0 = ($i < 1) ? '' : $i;
-        $raw  = $board_json[$board.$board0]['raw'];
-        $fans = $board_json[$board.$board0]['fans'];
+        $board0 = ($i == 0) ? $board : $board.$i;
+        $raw  = $board_json[$board0]['raw'];
+        $fans = $board_json[$board0]['fans'];
 
         foreach($fans as $fan => $value){
 
@@ -351,21 +351,21 @@ while(TRUE){ while(TRUE){
                 $pwm = str_pad($pwm, 2, '0', STR_PAD_LEFT);
 
                 //add fan, value, temp sensor name and reading
-                if(!empty($msg))
-                    $msg .= ',';
                 $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
-                $msg .= " $fan($pct%):$name(${reading}°C)";
+                $msg .= ", $fan($pct%):".str_replace('Temperature','Temp',$name)."(${reading}°C)";
 
            }else{
                 $pwm ='00';
            }
 
             if($board !== 'Supermicro'){
-                //add value to hex
+                //add value to hex for Asrock boards
                 $hex .= " $pwm";
             }else{
+                //create command for Supermicro
                 $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
 
+                //check if new pwm for FAN1234 then add to cmd string
                 if($value == '00' && $current_pwm !== $pwm && $pwm !== '00'){
                     $cmd .= $cmd_str;
 
@@ -373,6 +373,7 @@ while(TRUE){ while(TRUE){
                     $current_pwm  = $pwm;
                     $exec = true;
                 }
+                // check if new pwm for FANA then add to cmd string
                 if($value == '01' && $current_pwm2 !== $pwm && $pwm !== '00'){
                     $cmd .= $cmd_str;
 
@@ -383,7 +384,7 @@ while(TRUE){ while(TRUE){
             }
         }
 
-        //compare last value to new value
+        //compare last value to new value for Asrock boards
         if($current_hex != $hex && $board !== 'Supermicro'){
             $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
 
