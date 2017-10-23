@@ -1,4 +1,6 @@
 <?
+require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_check.php';
+
 /* fan control settings */
 $fancfg_file = "$plg_path/fan.cfg";
 if (file_exists($fancfg_file))
@@ -12,11 +14,6 @@ $harddrives = isset($fancfg['HARDDRIVES']) ? $fancfg['HARDDRIVES']              
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
 /* board info */
-$boards        = ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''];
-$board         = trim(shell_exec("dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'"));
-$board_model   = trim(shell_exec("dmidecode -t 2 | grep 'Product Name' | awk -F 'e:' '{print $2}'"));
-$board_status  = array_key_exists($board, $boards);
-
 if($board !== 'Supermicro'){
     $cmd_count = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
     $board_file = "$plg_path/board.json";
