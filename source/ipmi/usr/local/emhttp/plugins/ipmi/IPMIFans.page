@@ -1,8 +1,10 @@
 Menu="IPMI:2"
 Title="Fan Control"
 Markdown="false"
+Cond="file_exists('/boot/config/plugins/ipmi/ipmifan')"
 ---
-<?if ($board_status !== false):?>
+<?require_once '/usr/local/emhttp/plugins/ipmi/include/fan_helpers.php';?>
+
 <div id="title" style="margin-top: -22px;">
     <span class="left"><img class="icon" src="/plugins/ipmi/icons/fancontrol.png"> Fan Control </span>
     <span class="status" style="margin-top: 50px;margin-left: -200px;">
@@ -10,9 +12,12 @@ Markdown="false"
     <span class="status" id="fanctrl-status">Fan Control: <?=$fanctrl_status;?></span>
 </div>
 
+<?if ($board_status !== false):?>
+
 <form name="fanctrl_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/fan.cfg" />
 <input type="hidden" id="FANCMD" name="#command" value="" />
+
 
 <dl>
     <dt>Fan Control:</dt>
@@ -106,9 +111,7 @@ Markdown="false"
 
 <div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span></div>
 
-<?if ($board_status !== false):?>
     <span class="status" style="margin-top: 0px;"><input type="checkbox" id="advancedview"></span>
-<?endif;?>
 
 <form name="fanctrl_options" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/fan.cfg" />
@@ -128,8 +131,6 @@ Markdown="false"
     <p>Fan speed minimum (1-100%):  Select the lowest value a fan can reach. Useful to prevent fan from stopping or going below a certain rpm.</p>
 </blockquote>
 
-<?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None'))) && ($board_status !== false)):?>
-
     <dl>
         <dt>Hard Drives to Poll:</dt>
         <dd>
@@ -147,6 +148,8 @@ Markdown="false"
     </blockquote>
 
     &nbsp;
+
+<?if ((($netsvc == 'disable') || (($netsvc == 'enable') && ($fanip != 'None')))):?>
 
     <?get_fanctrl_options();?>
 
@@ -182,6 +185,8 @@ if(is_file($log)){
 
 <script>
 $(function(){
+    <?if ($board_status !== false):?>
+
     initDriveDropdown(false);
 
     // check if board supports ipmi
@@ -189,8 +194,6 @@ $(function(){
         checkBoard();
         initDriveDropdown(true);
     });
-
-    <?if ($board_status !== false):?>
 
     if($.cookie('one') == 'tab2')
         checkBoard();
@@ -226,12 +229,13 @@ $(function(){
     });
 
     $('#FAN_DEFAULT').click(resetFANDATA);
-    $('#FANCONTROL').click(checkFANCTRL)
+    $('#FANCONTROL').change(checkFANCTRL)
     checkFANCTRL();
 
-    <?endif;?>
 
     $('#fanlog-clear').on('click', clearFanLOG);
+
+    <?endif;?>
 
     $('#readings').click(function() {
         $.cookie('one', 'tab1', { expires:null, path: '/'});
@@ -240,13 +244,7 @@ $(function(){
 
 });
 
-function initDriveDropdown(remove) {
-
-    if (remove){
-        $('#select-drives').dropdownchecklist('destroy');
-    }
-    DDCheckList('#select-drives','#HDDIGNORE');
-}
+<?if ($board_status !== false):?>
 
 function resetFANDATA() {
     $('#FANCONTROL')[0].selectedIndex = 0;
@@ -263,7 +261,13 @@ function clearFanLOG() {
     });
 }
 
-<?if ($board_status !== false):?>
+function initDriveDropdown(remove) {
+
+    if (remove){
+        $('#select-drives').dropdownchecklist('destroy');
+    }
+    DDCheckList('#select-drives','#HDDIGNORE');
+}
 
 function checkFANCTRL() {
     if ($('#FANCONTROL')[0].selectedIndex < 1 ) {
