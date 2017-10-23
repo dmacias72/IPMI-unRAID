@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2017.10.09a">
+<!ENTITY version   "2017.10.23">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,13 @@
 
 <CHANGES>
 ##&name;
+###2017.10.23
+- add hard drive selection for fan control
+- add lock file to enable or disable fan control page
+- fix fan control start and stop
+- fix default settings buttons
+- add workaround to starting services during plugin install
+- add more towards dual socket Asrock, not there yet
 ###2017.10.09a
 - update second pass for dual socket boards
 ###2017.10.09
@@ -260,7 +267,7 @@ The 'plugin' config file.
 <INLINE>
 <![CDATA[
 IPMISELD="disable"
-IPMIPOLL="60"
+IPMIPOLL="180"
 NETWORK="disable"
 LOCAL="disable"
 IPADDR=""
@@ -271,8 +278,9 @@ DISP_SENSOR2="0"
 DISP_SENSOR1="0"
 DISP_SENSOR2="0"
 LOADCFG="disable"
-DASHTYPES=""
 IGNORE=""
+DIGNORE=""
+DASH="enable"
 ]]>
 </INLINE>
 </FILE>
@@ -284,8 +292,11 @@ The 'plugin' fan config file.
 <INLINE>
 <![CDATA[
 FANCONTROL="disable"
-FANPOLL="3"
+FANPOLL="6"
 FANIP=""
+HDDPOLL="18"
+HDDIGNORE=""
+HARDDRIVES="enable"
 ]]>
 </INLINE>
 </FILE>
@@ -304,6 +315,29 @@ The 'plugin' package MD5 hash.
 <URL>&gitURL;/archive/&plgNAME;.md5</URL>
 </FILE>
 
+<!-- WORKAROUND -->
+<FILE Name="/tmp/start_&name;" Mode="0770">
+<INLINE>
+#!/bin/bash
+echo "checking ipmi board support..."
+/usr/bin/php &emhttp;/scripts/ipmicheck
+sleep 1
+echo "checking ipmi event monitor..."
+/etc/rc.d/rc.ipmiseld start
+sleep 1
+echo "checking ipmi system log tail..."
+/etc/rc.d/rc.ipmitail start
+sleep 1
+echo "checking ipmi fan control..."
+/usr/sbin/ipmifan --quit
+sleep 1
+/usr/sbin/ipmifan --daemon
+sleep 1
+echo "checking ipmi sensors configuration..."
+/etc/rc.d/rc.ipmicfg commit
+</INLINE>
+</FILE>
+
 <!--
 The 'install' script.
 -->
@@ -314,18 +348,18 @@ source /etc/unraid-version
 VER=${version:0:3}
 
 if [[ $VER == 6.0 ]]; then
-  echo "unRAID version 6.1 or higher is required"
-  exit 1
+    echo "unRAID version 6.1 or higher is required"
+    exit 1
 fi
 
 # Verify and install plugin package
 sum1=$(/usr/bin/md5sum &plgPATH;/&plgNAME;.txz)
 sum2=$(/usr/bin/cat &plgPATH;/&plgNAME;.md5)
 if [ "${sum1:0:32}" != "${sum2:0:32}" ]; then
-  echo "Wrong 'plugin' package md5 hash."
-  rm &plgPATH;/&plgNAME;.txz \
-     &plgPATH;/&plgNAME;.md5
-  exit 1
+    echo "Wrong 'plugin' package md5 hash."
+    rm &plgPATH;/&plgNAME;.txz \
+         &plgPATH;/&plgNAME;.md5
+    exit 1
 else
 
     upgradepkg --install-new &plgPATH;/&plgNAME;.txz
@@ -334,29 +368,19 @@ else
          mv &plgPATH;/boards.json &plgPATH;/board.json
     fi
 
-        # Load impi drivers
-        echo "loading ipmi drivers..."
-        for module in ipmi_msghandler ipmi_devintf ipmi_si; do
-            modprobe -q $module
-        done
+    # Load impi drivers
+    echo "loading ipmi drivers..."
+    for module in ipmi_msghandler ipmi_devintf ipmi_si; do
+        modprobe -q $module
+    done
 
-    <![CDATA[
     # Start scripts if enabled
-    echo "checking ipmi event monitor..."
-    /etc/rc.d/rc.ipmiseld start >/dev/null 2>&1 < /dev/null &
+    echo "starting ipmi services..."
+    at -M -f /tmp/start_&name; now 2>/dev/null
+
     sleep 1
-    echo "checking ipmi system log tail..."
-    setsid /etc/rc.d/rc.ipmitail start >/dev/null 2>&1 < /dev/null &
-    sleep 1
-    echo "checking ipmi fan control..."
-    setsid /usr/sbin/ipmifan --quit > /dev/null 2>&1 &
-    sleep 1
-    setsid /usr/sbin/ipmifan --daemon &
-    sleep 1
-    echo "checking ipmi sensors configuration..."
-    setsid /etc/rc.d/rc.ipmicfg commit &
-    sleep 1
-    ]]>
+
+    rm -f /tmp/start_&name;
 
     # Cleaning old source files
     find &plgPATH;/ -type f -iname "&name;*.txz" ! -iname "*&version;*" -delete
@@ -365,8 +389,7 @@ else
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been installed."
-echo " This plugin requires Dynamix webGui to operate"
-echo " Copyright 2016, &author;"
+echo " Copyright 2016-2017, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
@@ -381,6 +404,7 @@ The 'remove' script.
 <FILE Run="/bin/bash" Method="remove">
 <INLINE>
 #stop daemon
+echo "stopping ipmi services..."
 /etc/rc.d/rc.ipmiseld stop
 sleep 1
 /etc/rc.d/rc.ipmitail stop
@@ -402,6 +426,7 @@ echo "unloading ipmi drivers..."
 for module in ipmi_msghandler ipmi_devintf ipmi_si; do
     modprobe -r $module
 done
+
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
