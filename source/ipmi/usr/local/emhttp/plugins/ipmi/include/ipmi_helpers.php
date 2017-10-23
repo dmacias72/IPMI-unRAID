@@ -1,6 +1,5 @@
 <?
 require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_options.php';
-require_once '/usr/local/emhttp/plugins/ipmi/include/fan_helpers.php';
 
 $action = array_key_exists('action', $_GET) ? htmlspecialchars($_GET['action']) : '';
 $hdd_temp = get_highest_temp();
