@@ -303,15 +303,15 @@ while(TRUE){ while(TRUE){
         $sensors = ipmi_fan_sensors();
     }
 
-    $hex = '';
-    $msg = 'Fan:Temp';
-    $cmd = '';
-    $exec = false;
-
     for($i = 0; $i <= $cmd_count; $i++){
         $board0 = ($i == 0) ? $board : $board.$i;
-        $raw  = $board_json[$board0]['raw'];
-        $fans = $board_json[$board0]['fans'];
+        $raw    = $board_json[$board0]['raw'];
+        $fans   = $board_json[$board0]['fans'];
+        $fan_count  = 0;
+        $hex = '';
+        $msg = 'Fan:Temp';
+        $cmd = '';
+        $exec = false;
 
         foreach($fans as $fan => $value){
 
@@ -333,7 +333,7 @@ while(TRUE){ while(TRUE){
                     $pwm = 64;
                 }else{
                     $pct = ($reading-$templo)/($temphi-$templo);
-                    $pwm = round(($pct)*16)*4;
+                    $pwm = round(($pct)*16)*4; //round
                 }
                 //impose fan lower limit
                 if ($pwm <= $fanmin){
@@ -352,7 +352,7 @@ while(TRUE){ while(TRUE){
 
                 //add fan, value, temp sensor name and reading
                 $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
-                $msg .= ", $fan($pct%):".str_replace('Temperature','Temp',$name)."(${reading}°C)";
+                $msg .= ", ${fan}(${pct}%):".str_replace('Temperature','Temp',${name})."(${reading}°C)";
 
            }else{
                 $pwm ='00';
@@ -360,7 +360,17 @@ while(TRUE){ while(TRUE){
 
             if($board !== 'Supermicro'){
                 //add value to hex for Asrock boards
-                $hex .= " $pwm";
+                if($cmd_count !== 0 && $fan_count == 0){
+                    // set value for CPU fans for dual sockets
+                    if($pwm == '00')
+                        $hex .= ' 00 00';
+                    else
+                        $hex .= " 01 $pwm";
+
+                }else{
+                    $hex .= " $pwm";
+                }
+
             }else{
                 //create command for Supermicro
                 $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
@@ -382,21 +392,38 @@ while(TRUE){ while(TRUE){
                     $exec = true;
                 }
             }
+            $fan_count++;
         }
+        if($board !== 'Supermicro'){
+            //compare last value to new value for Asrock boards
+            $cmd_str = "ipmi-raw $raw$hex $fanopts 2>&1";
 
-        //compare last value to new value for Asrock boards
-        if($current_hex != $hex && $board !== 'Supermicro'){
-            $cmd = "ipmi-raw $raw$hex $fanopts 2>&1";
+            if($i == 0){
 
-            //set current value for next loop
-            $current_hex = $hex;
-            $exec = true;
+                if($current_hex != $hex){
+                    $cmd = $cmd_str;
+
+                    //set current value for next loop
+                    $current_hex = $hex;
+                    $exec = true;
+                }
+            }else{
+
+                if($current_hex2 != $hex){
+                    $cmd = $cmd_str;
+
+                    //set 2nd current value for next loop
+                    $current_hex2 = $hex;
+                    $exec = true;
+                }
+            }
         }
 
         // execute command if exec set
         if($exec){
             shell_exec($cmd);
-            //fanlog($cmd);
+        if($debug)
+            fanlog($cmd);
 
             //log changes
             fanlog($msg);
