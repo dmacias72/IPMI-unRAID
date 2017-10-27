@@ -214,7 +214,7 @@ for($i = 0; $i <= $cmd_count; $i++){
             }
         }
         unset($fans_1third);
-        $fans[$name] = '00';
+        $fans[$name] = $i.'1';
         fanlog("Location $i-".$location.': '.$msg);
     }
 
@@ -225,7 +225,7 @@ for($i = 0; $i <= $cmd_count; $i++){
 
     shell_exec($cmd);
 
-    if ($i > 0)
+    if ($i !== 0)
         $board_tmp = $board.$i;
 
     $board_json[$board_tmp] =
