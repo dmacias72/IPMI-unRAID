@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2017.10.23">
+<!ENTITY version   "2017.10.26">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,9 @@
 
 <CHANGES>
 ##&name;
+###2017.10.26
+- add support for ASRock dual socket boards
+- misc fixes and code cleanup
 ###2017.10.23
 - add hard drive selection for fan control
 - add lock file to enable or disable fan control page
@@ -323,10 +326,10 @@ echo "checking ipmi board support..."
 /usr/bin/php &emhttp;/scripts/ipmicheck
 sleep 1
 echo "checking ipmi event monitor..."
-/etc/rc.d/rc.ipmiseld start
+/etc/rc.d/rc.ipmiseld restart
 sleep 1
 echo "checking ipmi system log tail..."
-/etc/rc.d/rc.ipmitail start
+/etc/rc.d/rc.ipmitail restart
 sleep 1
 echo "checking ipmi fan control..."
 /usr/sbin/ipmifan --quit
