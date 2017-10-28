@@ -13,6 +13,7 @@ $password  = isset($cfg['PASSWORD'])  ? htmlspecialchars($cfg['PASSWORD'])  : ''
 
 $ignore    = isset($cfg['IGNORE'])    ? htmlspecialchars($cfg['IGNORE'])    : '';
 $dignore   = isset($cfg['DIGNORE'])   ? htmlspecialchars($cfg['DIGNORE'])   : '';
+$devignore = isset($cfg['DEVIGNORE']) ? htmlspecialchars($cfg['DEVIGNORE']) : '';
 
 /* check if local ipmi driver is loaded */
 $ipmi = (file_exists('/dev/ipmi0') || file_exists('/dev/ipmi/0') || file_exists('/dev/ipmidev/0')); // Thanks to ljm42
