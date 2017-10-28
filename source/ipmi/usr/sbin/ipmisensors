@@ -9,6 +9,6 @@ IGNORED=""
 
 [ $NETWORK == "enable" ] && OPTIONS=" -h $IPADDR -u $USER -p $(echo $PASSWORD | base64 --decode)"
 
-[ $IGNORE != "" ] && IGNORED=" -R $IGNORE "
+[[ $IGNORE != "" ]] && IGNORED=" -R $IGNORE "
 
 /usr/sbin/ipmi-sensors $OPTIONS $IGNORED $@
