@@ -17,7 +17,7 @@
 
 <CHANGES>
 ##&name;
-###2017.10.26
+###2017.10.27
 - upgrade freeipmi to 1.5.7
 - fix fan control full and auto speed for ASRock dual socket boards
 - add hard drive selection for display sensors and Readings
