@@ -15,11 +15,13 @@ $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchar
 
 /* board info */
 if($board !== 'Supermicro'){
+    //if board is ASRock
     $cmd_count = (intval(trim(shell_exec("/usr/bin/lscpu | grep 'Socket(s):' | awk '{print $2}'"))) < 2) ? 0 : 1;
     $board_file = "$plg_path/board.json";
     $board_file_status = (file_exists($board_file));
     $board_json = ($board_file_status) ? json_decode((file_get_contents($board_file)), true) : [];
 }else{
+    //if board is Supermicro
     $cmd_count = 0;
     $board_file_status = true;
     $board_json = [ 'Supermicro' =>
