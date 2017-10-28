@@ -99,7 +99,7 @@ Event Polling Time:
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
 
 Global Available Sensors:
-: <select multiple id="select" title="Check sensors to show in all dropdown menus, readings page and footer.">
+: <select multiple id="select" title="choose sensors to show in all dropdown menus, readings page and footer.">
     <option value="">Select All</option>
     <?=ipmi_get_enabled($ignore);?>
   </select>
@@ -108,7 +108,7 @@ Global Available Sensors:
 
 <input type="hidden" id="select-svc" value="">
 
-> Check sensors to show in all dropdown menus, fan control, readings and footer.
+> Choose sensors to show in all dropdown menus, fan control, readings and footer.
 >
 > Unchecked sensors will not be displayed.
 
@@ -116,7 +116,7 @@ Global Available Sensors:
 
 
 Dashboard Sensors:
-: <select multiple id="select-dash" title="Enable IPMI sensors on the dashboard">
+: <select multiple id="select-dash" title="choose IPMI sensors for the dashboard">
     <option value="">Select All</option>
     <?=ipmi_get_enabled($dignore);?>
   </select>
@@ -125,9 +125,25 @@ Dashboard Sensors:
 
 <input type="hidden" id="select-dash-svc" name="DASH" value="<?=htmlspecialchars($dash);?>">
 
-> Check sensors to show in Dashboard display.
+> Choose sensors to show in Dashboard display.
 >
 > Unchecked sensors will not be displayed.
+
+&nbsp;
+
+Available Hard Drives:
+: <select multiple id="select-devs" title="choose hard drives to use with HDD Temperature">
+    <option value="">Select All</option>
+    <?=get_hdd_options($devignore);?>
+  </select>
+
+<input type="hidden" id="DEVIGNORE" name="DEVIGNORE" value="<?=htmlspecialchars($devignore);?>" />
+
+<input type="hidden" id="select-devs-svc" name="DEVS" value="<?=htmlspecialchars($devs);?>">
+
+> Choose hard drives to use for HDD Temperature.
+>
+> Unchecked hard drive temps will not be used.
 
 &nbsp;
 
@@ -240,9 +256,11 @@ function initIgnoreDropdown(remove) {
     if (remove) {
         $('#select').dropdownchecklist('destroy');
         $('#select-dash').dropdownchecklist('destroy');
+        $('#select-devs').dropdownchecklist('destroy');
     }
     DDCheckList('#select','#IGNORE');
     DDCheckList('#select-dash','#DIGNORE');
+    DDCheckList('#select-devs','#DEVIGNORE');
 }
 
 function DDCheckList(Select,Values) {
