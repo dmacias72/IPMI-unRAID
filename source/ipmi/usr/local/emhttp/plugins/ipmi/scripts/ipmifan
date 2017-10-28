@@ -24,7 +24,6 @@ Usage: $prog [options]
 
   -a, --auto       set fans to auto
       --full       set fans to full speed
-  -f, --force      force start
   -q, --quiet      suppress all messages
       --debug      turn on debugging
       --daemon     run in the background
@@ -40,7 +39,6 @@ $longopts = [
     'auto',
     'daemon',
     'debug',
-    'force',
     'full',
     'help',
     'quit',
@@ -61,7 +59,6 @@ if (array_key_exists('version', $args)) {
 
 $arga   = (array_key_exists('a', $args) || array_key_exists('auto', $args));
 $argf   = (array_key_exists('full', $args));
-$force  = (array_key_exists('f', $args) || array_key_exists('force', $args));
 $argq   = (array_key_exists('q', $args) || array_key_exists('quiet', $args));
 $debug  = (array_key_exists('debug', $args));
 $daemon = (array_key_exists('d', $args) || array_key_exists('daemon', $args));
@@ -110,11 +107,6 @@ if($argf){
         exit(0);
 }
 
-if(!($force) && ($fanctrl === 'disable' )){
-        echo "$prog is not enabled in $fancfg_file\ntype: $prog -f to force start".PHP_EOL;
-        exit(0);
-}
-
 if (!$board_file_status) {
     $msg = "Your $board motherboard is not supported or setup yet";
     logger($msg, $argq);
@@ -122,8 +114,7 @@ if (!$board_file_status) {
 }
 
 if($daemon){
-    $options = ($force) ? '--force' : '';
-    exec("php $service $options 1>/dev/null ".($debug ? "":"2>&1 ")."&");
+    exec("php $service 1>/dev/null ".($debug ? "":"2>&1 ")."&");
     syslog(LOG_INFO, "process started. To terminate it, type: $prog --quit");
     exit(0);
 }
@@ -191,44 +182,59 @@ function debug($m){
 
 /* auto fan */
 function autofan() {
-    global $board_json, $board, $raw, $fanopts;
+    global $board_json, $board, $cmd_count, $fanopts;
     fanlog('Setting fans to auto');
-    $auto = $board_json[$board]['auto'];
 
-    if($board !== 'Supermicro')
-        $cmd  = "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &";
-    else{
+    if($board !== 'Supermicro'){
+        //if board is ASRock
+        $cmd = '';
+        for($i = 0; $i <= $cmd_count; $i++){
+            $board0 = ($i == 0) ? $board : $board.$i;
+            $raw    = $board_json[$board0]['raw'];
+            $auto   = $board_json[$board0]['auto'];
+            $cmd   .= "ipmi-raw $raw $auto $fanopts 2>&1 >/dev/null &; ";
+        }
+    }else{
+        //if board is Supermicro
+        $raw    = $board_json[$board]['raw'];
+        $auto = $board_json[$board]['auto'];
         $mode = trim(shell_exec("ipmi-raw 00 30 45 00 | awk -F '45 00' '{print $2}'"));
         $cmd  = "ipmi-raw $auto $mode $fanopts 2>&1 >/dev/null &";
     }
-
     shell_exec($cmd);
 }
 
 /* full speed fan */
 function fullfan() {
-    global $board_json, $board, $raw, $fanopts;
+    global $board_json, $board, $cmd_count, $fanopts;
     fanlog('Setting fans to full speed');
-    $full = $board_json[$board]['full'];
 
-    if($board !== 'Supermicro')
-        $cmd = "ipmi-raw $raw $full $fanopts 2>&1 >/dev/null &";
-    else{
+    if($board !== 'Supermicro'){
+        //if board is ASRock
+        $cmd = '';
+        for($i = 0; $i <= $cmd_count; $i++){
+            $board0 = ($i == 0) ? $board : $board.$i;
+            $raw    = $board_json[$board0]['raw'];
+            $full   = $board_json[$board0]['full'];
+            $cmd   .= "ipmi-raw $raw $full $fanopts 2>&1 >/dev/null &; ";
+        }
+    }else{
+        //if board is Supermicro
+        $full = $board_json[$board]['full'];
         $cmd  = "ipmi-raw $full $fanopts 2>&1 >/dev/null &";
     }
-
     shell_exec($cmd);
 }
 
 /* get highest temp of hard drives */
 function get_highest_temp($hdds){
     global $hddignore;
-    $ignore = explode(',', $hddignore);
+    $ignore = array_flip(explode(',', $hddignore));
     $highest_temp = 0;
-    foreach ($hdds as $hdd => $serial) {
+    foreach ($hdds as $serial => $hdd) {
         if (!array_key_exists($serial, $ignore)) {
-            if (shell_exec("hdparm -C ${hdd} 2>/dev/null| grep -c standby") == 0){
-                $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A ${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
+            if (shell_exec("hdparm -C /dev/${hdd} 2>/dev/null| grep -c standby") == 0){
+                $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A /dev/${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
                 $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
             }
         }
