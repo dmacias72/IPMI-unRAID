@@ -1,6 +1,6 @@
 <?
 require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_options.php';
-require_once '/usr/local/emhttp/plugins/ipmi/include/fan_helpers.php';
+require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_drives.php';
 
 $action = array_key_exists('action', $_GET) ? htmlspecialchars($_GET['action']) : '';
 $hdd_temp = get_highest_temp();
@@ -27,12 +27,30 @@ if (!empty($action)) {
 
 /* get highest temp of hard drives */
 function get_highest_temp(){
-    $hdds = parse_ini_file('/var/local/emhttp/disks.ini',true);
+    global $devignore;
+    $ignore = array_flip(explode(',', $devignore));
+
+    //get UA devices
+    $ua_json = '/var/state/unassigned.devices/hdd_temp.json';
+    $ua_devs = file_exists($ua_json) ? json_decode(file_get_contents($ua_json), true) : [];
+
+    //get all hard drives
+    $hdds = array_merge(parse_ini_file('/var/local/emhttp/disks.ini',true), parse_ini_file('/var/local/emhttp/devs.ini',true));
+
     $highest_temp = 0;
     foreach ($hdds as $hdd) {
-        $temp = $hdd['temp'];
-        if(is_numeric($temp))
-            $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
+        if (!array_key_exists($hdd['id'], $ignore)) {
+
+            if(array_key_exists('temp', $hdd))
+                $temp = $hdd['temp'];
+            else{
+                $ua_key = "/dev/".$hdd['device'];
+                $temp = (array_key_exists($ua_key, $ua_devs)) ? $ua_devs[$ua_key]['temp'] : 'N/A';
+            }
+
+            if(is_numeric($temp))
+                $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
+        }
     }
     $return = ($highest_temp === 0) ? 'N/A': $highest_temp;
     return $return;
@@ -226,4 +244,263 @@ function get_content_from_github($repo, $file) {
     if (!empty($content) && (!is_file($file) || $content != file_get_contents($file)))
         file_put_contents($file, $content);
 }
+
+
+/* FAN HELPERS */
+
+
+/* get fan and temp sensors array */
+function ipmi_fan_sensors($ignore=null) {
+    global $ipmi, $fanopts, $hdd_temp;
+
+    // return empty array if no ipmi detected or network options
+    if(!($ipmi || !empty($fanopts)))
+        return [];
+
+    $ignored = (empty($ignore)) ? '' : "-R $ignore";
+    $cmd = "/usr/sbin/ipmi-sensors --comma-separated-output --no-header-output --interpret-oem-data $fanopts $ignored 2>/dev/null";
+    exec($cmd, $output, $return_var=null);
+
+    if ($return_var)
+        return []; // return empty array if error
+
+    // add highest hard drive temp sensor
+    $output[] = "99,HDD Temperature,Temperature, $hdd_temp,C,Ok";
+
+    // key names for ipmi sensors output
+    $keys = ['ID', 'Name', 'Type', 'Reading', 'Units', 'Event'];
+    $sensors = [];
+
+    foreach($output as $line){
+
+        // add sensor keys as keys to ipmi sensor output
+        $sensor_raw = explode(",", $line);
+        $size_raw = sizeof($sensor_raw);
+        $sensor = ($size_raw < 6) ? []: array_combine($keys, array_slice($sensor_raw,0,6,true));
+
+        if ($sensor['Type'] === 'Temperature' || $sensor['Type'] === 'Fan')
+            $sensors[$sensor['ID']] = $sensor;
+    }
+    return $sensors; // sensor readings
+    unset($sensors);
+}
+
+/* get all fan options for fan control */
+function get_fanctrl_options(){
+    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status;
+    if($board_status) {
+        $i = 0;
+        $ii = 0;
+        foreach($fansensors as $id => $fan){
+            if($i > 7) break;
+            if ($fan['Type'] === 'Fan'){
+                $name    = htmlspecialchars($fan['Name']);
+                if($board ==='Supermicro' && $name !== 'FANA'){
+                    $i++;
+                    if($ii == 0){
+                        $name = 'FAN1234';
+                        $ii ++;
+                    }else
+                        continue;
+                }
+                $tempid  = 'TEMP_'.$name;
+                $temp    = $fansensors[$fancfg[$tempid]];
+                $templo  = 'TEMPLO_'.$name;
+                $temphi  = 'TEMPHI_'.$name;
+                $fanmax  = 'FANMAX_'.$name;
+                $fanmin  = 'FANMIN_'.$name;
+
+                // hidden fan id
+                echo '<input type="hidden" name="FAN_',$name,'" value="',$id,'"/>';
+
+                // fan name: reading => temp name: reading
+                echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
+                if ($temp['Name'])
+                    echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
+                    $fancfg[$templo],', ',$fancfg[$temphi],', ',intval($fancfg[$fanmin])/64*100,'-',intval($fancfg[$fanmax])/64*100,'%';
+                else
+                    echo 'Auto';
+                echo '</span><span class="fanctrl-settings">&nbsp;</span>';
+
+                // check if board.json exists then if fan name is in board.json
+                $noconfig = '<font class="red"><b><i> (fan is not configured!)</i></b></font>';
+                if($board_file_status){
+                    if(!array_key_exists($name, $board_json[$board]['fans']))
+                        if ($cmd_count !== 0){
+                            if(!array_key_exists($name, $board_json["${board}1"]['fans']))
+                                echo $noconfig;
+                        }else{
+                            echo $noconfig;
+                        }
+                } else {
+                    echo $noconfig;
+                }
+
+                echo '</dd></dl>';
+
+                // temperature sensor
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Temperature sensor:</dd></dl></dt><dd>',
+                '<select name="',$tempid,'" class="fanctrl-temp fanctrl-settings">',
+                '<option value="0">Auto</option>',
+                get_temp_options($fancfg[$tempid]),
+                '</select></dd></dl>';
+
+                // high temperature threshold
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>High temperature threshold (&deg;C):</dd></dl></dt>',
+                '<dd><select name="',$temphi,'" class="',$tempid,' fanctrl-settings">',
+                get_temp_range('HI', $fancfg[$temphi]),
+                '</select></dd></dl>';
+
+                // low temperature threshold
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Low temperature threshold (&deg;C):</dd></dl></dt>',
+                '<dd><select name="',$templo,'" class="',$tempid,' fanctrl-settings">',
+                get_temp_range('LO', $fancfg[$templo]),
+                '</select></dd></dl>';
+
+                // fan control maximum speed
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Fan speed maximum (%):</dd></dl></dt><dd>',
+                '<select name="',$fanmax,'" class="',$tempid,' fanctrl-settings">',
+                get_minmax_options('HI', $fancfg[$fanmax]),
+                '</select></dd></dl>';
+
+                // fan control minimum speed
+                echo '<dl class="fanctrl-settings">',
+                '<dt><dl><dd>Fan speed minimum (%):</dd></dl></dt><dd>',
+                '<select name="',$fanmin,'" class="',$tempid,' fanctrl-settings">',
+                get_minmax_options('LO', $fancfg[$fanmin]),
+                '</select></dd></dl>&nbsp;';
+
+                $i++;
+            }
+        }
+    } elseif($board === 'Supermicro'){
+            // temperature sensor
+            echo '<dl>',
+            '<dt>Temperature sensor:</dt><dd>',
+            '<select name="TEMP_FAN">',
+            '<option value="0">Auto</option>',
+            get_temp_options($fancfg['TEMP_FAN']),
+            '</select></dd></dl>';
+
+            // low temperature threshold
+            echo '<dl>',
+            '<dt>Low temperature threshold (&deg;C):</dt>',
+            '<dd><select name="TEMPLO_FAN">',
+            get_temp_range('LO', $fancfg['TEMPLO_FAN']),
+            '</select></dd></dl>';
+
+            // high temperature threshold
+            echo '<dl>',
+            '<dt>High temperature threshold (&deg;C):</dt>',
+            '<dd><select name="TEMPHI_FAN">',
+            get_temp_range('HI', $fancfg['TEMPHI_FAN']),
+            '</select></dd></dl>';
+
+    } else {
+        echo '<dl><dt>&nbsp;</dt><dd><p><b><font class="red">Your board is not currently supported</font></b></p></dd></dl>';
+    }
+}
+
+/* get select options for temp & fan sensor types from fan ip*/
+function get_temp_options($selected=0){
+    global $fansensors, $fanip;
+    $options = '';
+    foreach($fansensors as $id => $sensor){
+        if (($sensor['Type'] === 'Temperature') || ($sensor['Name'] === 'HDD Temperature')){
+            $name = $sensor['Name'];
+            $options .= "<option value='$id'";
+
+            // set saved option as selected
+            if (intval($selected) === $id)
+                $options .= ' selected';
+
+        $options .= ">$name</option>";
+        }
+    }
+    return $options;
+}
+
+/* get options for high or low temp thresholds */
+function get_temp_range($range, $selected=0){
+    $temps = [20,80];
+    if ($range === 'HI')
+      rsort($temps);
+    $options = "";
+    foreach(range($temps[0], $temps[1], 5) as $temp){
+        $options .= "<option value='$temp'";
+
+        // set saved option as selected
+        if (intval($selected) === $temp)
+            $options .= " selected";
+
+        $options .= ">$temp</option>";
+    }
+    return $options;
+}
+
+/* get options for fan speed min and max */
+function get_minmax_options($range, $selected=0){
+    $incr = [1,64];
+    if ($range === 'HI')
+      rsort($incr);
+    $options = "";
+    foreach(range($incr[0], $incr[1], 1) as $value){
+        $options .= "<option value='$value'";
+
+        // set saved option as selected
+        if (intval($selected) === $value)
+            $options .= ' selected';
+
+        $options .= '>'.intval(($value/64)*100).'</option>';
+    }
+    return $options;
+}
+
+/* get options 1 - 64 for fan minimum speed */
+function get_min_options($limit){
+    $options = '';
+        for($i = 1; $i <= 64; $i++){
+            $options .= '<option value="'.$i.'"';
+            if(intval($limit) === $i)
+                $options .= ' selected';
+
+            $options .= '>'.intval(($i/64)*100).'</option>';
+        }
+    return $options;
+}
+
+/* get network ip options for fan control */
+function get_fanip_options(){
+    global $ipaddr, $fanip;
+    $ips = 'None,'.$ipaddr;
+    $ips = explode(',',$ips);
+        foreach($ips as $ip){
+            $options .= '<option value="'.$ip.'"';
+            if($fanip === $ip)
+                $options .= ' selected';
+
+            $options .= '>'.$ip.'</option>';
+        }
+    echo $options;
+}
+
+function get_hdd_options($ignore=null) {
+    $hdds = get_all_hdds();
+    $ignored = array_flip(explode(',', $ignore));
+    foreach ($hdds as $serial => $hdd) {
+        $options .= "<option value='$serial'";
+
+        // search for id in array to not select ignored sensors
+        $options .= array_key_exists($serial, $ignored) ?  '' : " selected";
+
+        $options .= ">$serial ($hdd)</option>";
+
+    }
+    return $options;
+}
+
 ?>
