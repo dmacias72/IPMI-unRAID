@@ -2,7 +2,6 @@
 
 CONFIG="/boot/config/plugins/ipmi/ipmi.cfg"
 OPTIONS=""
-IGNORED=""
 
 # read our configuration
 [ -e "$CONFIG" ] && source "$CONFIG"
