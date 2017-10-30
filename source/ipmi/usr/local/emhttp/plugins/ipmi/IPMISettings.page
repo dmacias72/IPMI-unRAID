@@ -235,6 +235,7 @@ $(function(){
         location = '/Settings/IPMITools';
     });
 
+    $('#btnApply').click(verifyDATA);
     $('#ipmi-default').click(resetDATA);
     $('#seld-default').click(resetSeldDATA);
     $('#ignore-default').click(resetIgnoreDATA);
@@ -249,7 +250,7 @@ $(function(){
     $('#LOCAL').change(checkLOCAL);
     checkLOCAL();
 
-    decData(document.seld_settings);
+    decData();
 });
 
 function initIgnoreDropdown(remove) {
@@ -347,8 +348,7 @@ function checkNETWORK() {
         $('.ipmi-lan').hide();
     else {
         $('.ipmi-lan').show();
-        $('.ipmi-run').prop('disabled', ("<?=$seld_run;?>" == true));
-        $('.ipmi-run').prop('disabled', ("<?=$fanctrl_run;?>" == true));
+        $('.ipmi-run').prop('disabled', ("<?=$seld_run || $fanctrl_run?>" == true));
     }
 }
 
@@ -360,9 +360,6 @@ function checkLOCAL() {
 }
 
 function verifyDATA() {
-    $('#IPMISELD').val( $('#IPMISELD').val().replace(/ /g,'_') );
-    $('#NETWORK').val( $('#NETWORK').val().replace(/ /g,'_') );
-    $('#USER').val( $('#USER').val().replace(/ /g,'_') );
     $('#PASSWORD').val( btoa( $('#PASSWORD').val()) );
 }
 
