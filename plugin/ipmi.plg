@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2017.10.27">
+<!ENTITY version   "2017.10.30">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,9 @@
 
 <CHANGES>
 ##&name;
+###2017.10.30
+- fix network password encoding on settings page
+- fix: remove info page error from freeipmi package
 ###2017.10.27
 - upgrade freeipmi to 1.5.7
 - fix fan control full and auto speed for ASRock dual socket boards
@@ -259,9 +262,9 @@
 This plugin uses freeipmi to display sensor readings
 -->
 
-<FILE Name="&plgPATH;/freeipmi-1.5.7-x86_64-1.txz" Min="6.2" Run="/sbin/upgradepkg --install-new">
-<URL>&pkgURL;/freeipmi-1.5.7-x86_64-1.txz</URL>
-<MD5>7311ddb3ccf1f4c1712a8b2b5a501e4d</MD5>
+<FILE Name="&plgPATH;/freeipmi-1.5.7-x86_64-2.txz" Min="6.2" Run="/sbin/upgradepkg --install-new">
+<URL>&pkgURL;/freeipmi-1.5.7-x86_64-2.txz</URL>
+<MD5>66a3efd19bd7cc53ef07c14a77431fe7</MD5>
 </FILE>
 
 <FILE Name="&plgPATH;/freeipmi-1.4.11-x86_64-3.txz" Min="6.1" Max="6.1.99" Run="/sbin/upgradepkg --install-new">
