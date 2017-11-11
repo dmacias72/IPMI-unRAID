@@ -13,6 +13,7 @@ Title="Settings"
 </div>
 
 <form markdown="1" id="settings-ipmi" name="ipmi_settings" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
 
 Enable Network Connection(s):
 : <select id="NETWORK" class="ipmi-run" name="NETWORK" size="1"  title="Enable connection to network based ipmi, not necessary for local onboard ipmi">
@@ -21,6 +22,7 @@ Enable Network Connection(s):
   </select>
 
 > Enable monitoring of IPMI sensors and events through the network.
+> Notifications and Fan Control must be stopped to change settings
 
 <label class="ipmi-lan">Enable Localhost Connection:</label>
 : <select id="LOCAL" class="ipmi-run ipmi-lan" name="LOCAL" size="1" title="Enable localhost connection along with network connections">
@@ -360,7 +362,7 @@ function checkLOCAL() {
 }
 
 function verifyDATA() {
-    $('#PASSWORD').val( btoa( $('#PASSWORD').val()) );
+    $('#PASSWORD').val(btoa( $('#PASSWORD').val()));
 }
 
 // send random test event
