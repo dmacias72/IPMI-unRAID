@@ -14,22 +14,20 @@ OPTIONS=""
 ipmitail_start() {
     # no-op if already running
     if [ ! -r "$PIDFILE" ]; then
-        if [ "$IPMISELD" == "enable" ]; then
-            echo "starting $PROG..."
-            sleep 1
+        echo "starting $PROG..."
+        sleep 1
 
-            nohup $DAEMON >/dev/null 2>&1 | echo $! > $PIDFILE &
-            touch $LOCKFILE
-            TIMER=0
-            while [ ! -e $PIDFILE ]; do
-                sleep 1
-                let TIMER=$TIMER+1
-                if [ $TIMER -gt 5 ]; then
-                    echo -n "$PIDFILE not created"
-                break
-                fi
-            done
-        fi
+        nohup $DAEMON >/dev/null 2>&1 | echo $! > $PIDFILE &
+        touch $LOCKFILE
+        TIMER=0
+        while [ ! -e $PIDFILE ]; do
+            sleep 1
+            let TIMER=$TIMER+1
+            if [ $TIMER -gt 5 ]; then
+                echo -n "$PIDFILE not created"
+            break
+            fi
+        done
     else
         echo "$PROG is running..."
     fi

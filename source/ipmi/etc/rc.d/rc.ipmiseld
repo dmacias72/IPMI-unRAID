@@ -14,25 +14,23 @@ OPTIONS=""
 ipmiseld_start() {
     # no-op if already running
     if [ ! -r "$PIDFILE" ]; then
-        if [ "$IPMISELD" == "enable" ]; then
-            if [ $NETWORK == "enable" ]; then
-                OPTIONS=" -h $IPADDR -u $USER -p $(echo $PASSWORD | base64 --decode)"
-            fi
-            echo "starting $PROG..."
-            sleep 1
-
-            nohup $DAEMON --poll-interval=$IPMIPOLL --system-event-format='IPMI Event: %h *%I* %T - %E' --oem-timestamped-event-format='IPMI Event: %h %i - %o' --interpret-oem-data --output-oem-event-strings --entity-sensor-names $OPTIONS > /dev/null 2>&1 | logger -tipmi &
-            touch $LOCKFILE
-            TIMER=0
-            while [ ! -e $PIDFILE ]; do
-                sleep 1
-                let TIMER=$TIMER+1
-                if [ $TIMER -gt 5 ]; then
-                    echo -n "$PIDFILE not created"
-                break
-                fi
-            done
+        if [ $NETWORK == "enable" ]; then
+            OPTIONS=" -h $IPADDR -u $USER -p $(echo $PASSWORD | base64 --decode)"
         fi
+        echo "starting $PROG..."
+        sleep 1
+
+        nohup $DAEMON --poll-interval=$IPMIPOLL --system-event-format='IPMI Event: %h *%I* %T - %E' --oem-timestamped-event-format='IPMI Event: %h %i - %o' --interpret-oem-data --output-oem-event-strings --entity-sensor-names $OPTIONS > /dev/null 2>&1 | logger -tipmi &
+        touch $LOCKFILE
+        TIMER=0
+        while [ ! -e $PIDFILE ]; do
+            sleep 1
+            let TIMER=$TIMER+1
+            if [ $TIMER -gt 5 ]; then
+                echo -n "$PIDFILE not created"
+            break
+            fi
+        done
     else
         echo "$PROG is running..."
     fi
