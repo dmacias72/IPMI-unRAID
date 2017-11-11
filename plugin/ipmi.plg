@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2017.10.30">
+<!ENTITY version   "2017.11.11">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,10 @@
 
 <CHANGES>
 ##&name;
+###2017.11.11
+- fix network settings not saving
+- change Dash page and Fan Control page condition check
+- misc minor bug fixes
 ###2017.10.30
 - fix network password encoding on settings page
 - fix: remove info page error from freeipmi package
