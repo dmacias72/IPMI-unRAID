@@ -287,7 +287,7 @@ function ipmi_fan_sensors($ignore=null) {
 
 /* get all fan options for fan control */
 function get_fanctrl_options(){
-    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status;
+    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status, $cmd_count;
     if($board_status) {
         $i = 0;
         $ii = 0;
@@ -317,7 +317,7 @@ function get_fanctrl_options(){
                 echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
                 if ($temp['Name'])
                     echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
-                    $fancfg[$templo],', ',$fancfg[$temphi],', ',intval($fancfg[$fanmin])/64*100,'-',intval($fancfg[$fanmax])/64*100,'%';
+                    $fancfg[$templo],', ',$fancfg[$temphi],', ',intval(intval($fancfg[$fanmin])/64*100),'-',intval(intval($fancfg[$fanmax])/64*100),'%';
                 else
                     echo 'Auto';
                 echo '</span><span class="fanctrl-settings">&nbsp;</span>';
