@@ -11,6 +11,7 @@ ln -sf /usr/local/emhttp/plugins/ipmi/scripts/ipmifan /usr/sbin/ipmifan
 chmod +0755 /usr/local/emhttp/plugins/ipmi/scripts/* \
     /usr/sbin/ipmi2json \
     /usr/sbin/ipmifan \
+    /usr/sbin/ipmiraw \
     /usr/sbin/ipmisel \
     /usr/sbin/ipmisensors \
     /usr/sbin/ipmitail \
