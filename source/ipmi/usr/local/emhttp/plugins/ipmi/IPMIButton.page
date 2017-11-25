@@ -20,9 +20,7 @@ Markdown="false"
 function ipmiTemp() {
   $.get('/plugins/ipmi/include/ipmi_temp.php',{unit:'<?=$display['unit']?>',dot:'<?=$display['number'][0]?>'},function(data) {
     if (data) showFooter(data,'temps');
-<?if ($display['refresh']>0 || ($display['refresh']<0 && $var['mdResync']==0)):?>
-    timers.systemTemp = setTimeout(systemTemp,<?=max(abs($display['refresh']),20000)?>);
-<?endif;?>
+    timers.ipmiTemp = setTimeout(ipmiTemp,20000);
   });
 }
 ipmiTemp();
