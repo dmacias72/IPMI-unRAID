@@ -56,10 +56,10 @@ if(($arg_commit) && (!empty($config_old))){
 if($commit && !empty($config)){
     // save config file changes
     file_put_contents($config_file, $config);
-    $cmd .= "--commit $netopts 2>&1";
+    $cmd .= "--commit $netopts";
 
 }else
-    $cmd .= "--checkout $netopts 2>&1";
+    $cmd .= "--checkout $netopts";
 
 exec($cmd, $output, $return_var=null);
 
@@ -69,7 +69,8 @@ if($return_var){
     if(($commit) && !empty($config_old))
         file_put_contents($config_file, $config_old);
 
-    $return = ['error' => $output];
+    $return = ['error' => $output,
+        'success' => false];
 
 }else
     $return = [
