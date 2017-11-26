@@ -54,6 +54,8 @@ Markdown="false"
 <textarea id="editcfg" name="ipmicfg" placeholder="Select IPMI Configuration above." autocomplete="" focus></textarea>
 <input type="hidden" id="commit" name="commit" value="1" />
 <input type="hidden" id="ipmiconfig" name="config" value="1" />
+<input type="hidden" name="csrf_token" value="<?=$var['csrf_token']?>" />
+
 <dl>
     <dt><input type="button" value="Revert" id="btnRevert" title="reset the stored IPMI config file to the existing BMC config" /></dt>
     <dd><input type="button" value="Save" id="btnSubmit" title="save IPMI configuration changes to the BMC" />
@@ -107,7 +109,7 @@ $(function(){
 
         if (Config != -1){
             $('#ipmiconfig').val(Config);
-            $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config}, function (data) {
+            $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config, csrf_token:"<?=$var['csrf_token']?>"}, function (data) {
                     editor.setValue(data.config);
                 },'json'
             );
@@ -153,11 +155,9 @@ function commitConfig() {
                 swal({title:Title,text:'saved',type:'success',closeOnConfirm: true,},function() {
                     location = '/Settings/IPMI';
                 });
-            }
-
-            if(data.error)
+            }else{
                 swal({title:Title,text:data.error,type:'error'});
-
+            }
         }, 'json');
     }
 }
@@ -165,7 +165,7 @@ function commitConfig() {
 function revertConfig() {
     var Config = $('#editfile')[0].selectedIndex -1;
     if (Config != -1){
-        $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config}, function (data) {
+        $.post('/plugins/ipmi/include/ipmi_config.php', {ipmicfg:null, config:Config, csrf_token:"<?=$var['csrf_token']?>"}, function (data) {
             var Title = 'IPMI Sensors Configuration';
 
             if(data.success){
