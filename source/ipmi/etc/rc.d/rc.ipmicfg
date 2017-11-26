@@ -14,29 +14,27 @@ fi
 
 # Commit ipmi sensors configuration:
 ipmicfg_commit() {
-        if [ "$LOADCFG" == "enable" ]; then
-            echo "committing ipmi sensors configuration..."
-            sleep 1
+    echo "committing ipmi sensors configuration..."
+    sleep 1
 
-            nohup $PROG $OPTIONS > /dev/null 2>&1 | logger -tipmi &
-        fi
+    nohup $PROG $OPTIONS > /dev/null 2>&1 | logger -tipmi &
 }
 
 # Checkout ipmi sensors configuration:
 ipmicfg_checkout() {
-            echo "checking out ipmi sensors configuration..."
-            sleep 1
+    echo "checking out ipmi sensors configuration..."
+    sleep 1
 
-            nohup $PROG --checkout $OPTIONS > /dev/null 2>&1 | logger -tipmi &
+    nohup $PROG --checkout $OPTIONS > /dev/null 2>&1 | logger -tipmi &
 }
 
 case "$1" in
 'commit')
-  ipmicfg_commit
-  ;;
+    ipmicfg_commit
+    ;;
 'checkout')
-  ipmicfg_checkout
-  ;;
+    ipmicfg_checkout
+    ;;
 *)
-  echo "usage rc.ipmicfg: commit|checkout"
+echo "usage rc.ipmicfg: commit|checkout"
 esac
