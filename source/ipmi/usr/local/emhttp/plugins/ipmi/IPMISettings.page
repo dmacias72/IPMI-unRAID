@@ -388,17 +388,18 @@ function resetBMC(){
         text: 'You want to do a cold reset of the BMC!?',
         type: 'warning',
         showCancelButton: true,
-        closeOnConfirm: true,
+        closeOnConfirm: false
     }, function() {
-        $.post('/plugins/ipmi/include/bmc_reset.php', {},function(data) {
+        $.post('/plugins/ipmi/include/bmc_reset.php', {csrf_token:"<?=$var['csrf_token']?>"},function(data) {
+            var Title = 'BMC Reset';
 
-            if(data.success)
-                swal({title:Title,text:'cold reset of BMC sucessful',type:'success',closeOnConfirm: true,},function() {
+            if(data.success){
+                swal({title:Title,text:'cold reset of BMC sucessful',type:'success',closeOnConfirm: true},function() {
                     location.reload(true);
                 });
-
-            if(data.error)
+            }else{
                 swal({title:Title,text:data.error,type:'error'});
+            }
 
         }, 'json');
     });
