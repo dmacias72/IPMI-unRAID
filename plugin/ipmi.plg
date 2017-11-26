@@ -339,22 +339,57 @@ The 'plugin' package MD5 hash.
 <FILE Name="/tmp/start_&name;" Mode="0770">
 <INLINE>
 #!/bin/bash
-echo "checking ipmi board support..."
+CONFIG=&plgPATH;/ipmi.cfg
+
+# read our configuration
+if [ -e "$CONFIG" ]; then
+    source "$CONFIG"
+fi
+
+# checking ipmi board support
 /usr/bin/php &emhttp;/scripts/ipmicheck
 sleep 1
-echo "checking ipmi event monitor..."
-/etc/rc.d/rc.ipmiseld restart
+
+# stopping ipmi event monitor
+/etc/rc.d/rc.ipmiseld stop
 sleep 1
-echo "checking ipmi system log tail..."
-/etc/rc.d/rc.ipmitail restart
+
+# stopping ipmi system log tail
+/etc/rc.d/rc.ipmitail stop
 sleep 1
-echo "checking ipmi fan control..."
+
+# start ipmi event monitoring if enabled
+if [ "$IPMISELD" == "enable" ]; then
+    # starting ipmi event monitor
+    /etc/rc.d/rc.ipmiseld start
+    sleep 1
+
+    # starting ipmi system log tail
+    /etc/rc.d/rc.ipmitail start
+    sleep 1
+fi
+
+CONFIG=&plgPATH;/fan.cfg
+
+# read our configuration
+if [ -e "$CONFIG" ]; then
+    source "$CONFIG"
+fi
+
+# stopping ipmi fan control
 /usr/sbin/ipmifan --quit
 sleep 1
-/usr/sbin/ipmifan --daemon
-sleep 1
-echo "checking ipmi sensors configuration..."
-/etc/rc.d/rc.ipmicfg commit
+
+# start ipmi fan control if enabled
+if [ "$FANCONTROL" == "enable" ]; then
+    /usr/sbin/ipmifan --daemon
+    sleep 1
+fi
+
+# checking ipmi sensors configuration
+if [ "$LOADCFG" == "enable" ]; then
+    /etc/rc.d/rc.ipmicfg commit
+fi
 </INLINE>
 </FILE>
 
