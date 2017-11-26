@@ -343,7 +343,7 @@ The 'plugin' package MD5 hash.
 <FILE Name="/tmp/start_&name;" Mode="0770">
 <INLINE>
 #!/bin/bash
-CONFIG=&plgPATH;/ipmi.cfg
+CONFIG=&plgPATH;/&name;.cfg
 
 # read our configuration
 if [ -e "$CONFIG" ]; then
