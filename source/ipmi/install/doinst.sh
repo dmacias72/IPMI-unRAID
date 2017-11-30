@@ -34,6 +34,6 @@ fi
 
 # Add stop script to rc.local_shutdown script
 if ! grep "$RC_SCRIPT3" $SD_RCFILE >/dev/null 2>&1
-    then echo -e "\n[ -x $RC_SCRIPT3 ] && $RC_SCRIPT3 -q" >> $SD_RCFILE
+    then echo -e "\n[ -x $RC_SCRIPT3 ] && $RC_SCRIPT3 --quit" >> $SD_RCFILE
 fi
 [ ! -x $SD_RCFILE ] && chmod u+x $SD_RCFILE
