@@ -3,7 +3,7 @@ require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_helpers.php';
 require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_settings_display.php';
 
 function format_ipmi_temp($reading, $unit, $dot) {
-  return (($reading != 0) ? ($unit==='F' ? round(9/5*$reading+32) : str_replace('.',$dot,$reading))."<small>&deg;$unit</small>" : '##');
+  return (($reading != 0) ? ($unit==='F' ? round(9/5*$reading+32) : str_replace('.',$dot,$reading))."</font><font><small>&deg;$unit</small>" : '##');
 }
 
 $disp_sensors = [$disp_sensor1, $disp_sensor2, $disp_sensor3, $disp_sensor4];
@@ -33,25 +33,36 @@ if (!empty($disp_sensors)){
                 if ($disp_reading > $UpperC && $UpperC != 0)
                     $Color = 'red';
 
-                $displays[] = "<img src='/plugins/ipmi/icons/cpu.png' title='$disp_name ($disp_id)' class='icon'><font color='$Color'>".
-                    format_ipmi_temp(floatval($disp_reading), htmlspecialchars($_GET['unit']), htmlspecialchars($_GET['dot'])).'</font>';
+                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/cpu.png' class='icon'><font color='$Color'>".
+                    format_ipmi_temp(floatval($disp_reading), htmlspecialchars($_GET['unit']), htmlspecialchars($_GET['dot'])).'</font></span>';
             }elseif($readings[$disp_sensor]['Type'] === 'Fan'){
                 // if Fan RPMs are less than lower non-critical
                 if ($disp_reading < $LowerNC || $disp_reading < $LowerC || $disp_reading < $LowerNR)
                     $Color = "red";
 
-                $displays[] = "<img src='/plugins/ipmi/icons/fan.png' title='$disp_name ($disp_id)' class='icon'><font color='$Color'>".
-                    floatval($disp_reading)."</font><small>&thinsp;rpm</small>";
+                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/fan.png' class='icon'><font color='$Color'>".
+                    floatval($disp_reading)."</font><small>rpm</small></span>";
+            }elseif($readings[$disp_sensor]['Type'] === 'Voltage'){
+                // if Voltage is less than lower non-critical
+                if ($disp_reading < $LowerNC || $disp_reading < $LowerC || $disp_reading < $LowerNR)
+                    $Color = "red";
+                if ($disp_reading > $UpperNC || $disp_reading > $UpperC || $disp_reading > $UpperNR)
+                    $Color = "red";
+
+                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/mb.png' class='icon'><font color='$Color'>".
+                    floatval($disp_reading)."</font><small>v</small></span>";
             }elseif($readings[$disp_sensor]['Type'] === 'OEM Reserved'){
                 if($disp_reading === 'Medium')
                     $Color = 'orange';
                 if($disp_reading === 'High')
                     $Color = 'Red';
-                $displays[] = "<img src='/plugins/ipmi/icons/cpu.png' title='$disp_name ($disp_id)' class='icon'><font color='$Color'>$disp_reading</font>";
+                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/cpu.png' class='icon'><font color='$Color'>$disp_reading</font></span>";
+            }else{
+                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/mb.png' class='icon'><font color='$Color'>$disp_reading</font></span>";
             }
         }
     }
 }
 if ($displays)
-    echo "<span id='temps' style='margin-right:16px;font-weight: bold;'>".implode('&nbsp;', $displays)."</span>";
+    echo "<span id='impitemps' style='margin-right:16px;font-weight: bold;cursor: pointer;'>".implode('&nbsp;', $displays)."</span>";
 ?>
