@@ -187,19 +187,17 @@ function ipmi_get_options($selected=null){
     global $sensors;
     $options = "";
     foreach($sensors as $id => $sensor){
-        if (($sensor['Type'] === 'Temperature') || ($sensor['Type'] === 'Fan') || ($sensor['Type'] === 'OEM Reserved')){
-            $name = $sensor['Name'];
-            $reading  = ($sensor['Type'] === 'OEM Reserved') ? $sensor['Event'] : $sensor['Reading'];
-            $ip       = (empty($sensor['IP'])) ? '' : " (${sensor['IP']})";
-            $units    = is_numeric($reading) ? $sensor['Units'] : '';
-            $options .= "<option value='$id'";
+        $name = $sensor['Name'];
+        $reading  = ($sensor['Type'] === 'OEM Reserved') ? $sensor['Event'] : $sensor['Reading'];
+        $ip       = (empty($sensor['IP'])) ? '' : " (${sensor['IP']})";
+        $units    = is_numeric($reading) ? $sensor['Units'] : '';
+        $options .= "<option value='$id'";
 
-            // set saved option as selected
-            if ($selected == $id)
-                $options .= " selected";
+        // set saved option as selected
+        if ($selected == $id)
+            $options .= " selected";
 
         $options .= ">$name$ip - $reading $units</option>";
-        }
     }
     return $options;
 }
