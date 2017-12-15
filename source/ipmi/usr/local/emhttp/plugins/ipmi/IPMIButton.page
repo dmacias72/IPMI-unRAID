@@ -19,7 +19,7 @@ Markdown="false"
 <script>
 function ipmiTemp() {
   $.get('/plugins/ipmi/include/ipmi_temp.php',{unit:'<?=$display['unit']?>',dot:'<?=$display['number'][0]?>'},function(data) {
-    if (data) showFooter(data,'temps');
+    if (data) showFooter(data,'impitemps');
     timers.ipmiTemp = setTimeout(ipmiTemp,20000);
   });
 }
