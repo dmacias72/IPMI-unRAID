@@ -1,6 +1,8 @@
 #!/bin/bash
 
 DAEMON="IPMI Event: "
+MSGOLD=""
+HOST="$(echo $HOSTNAME | awk '{print toupper($0)}')"
 
 exec /usr/bin/tail -n 0 -F /var/log/syslog | \
 
@@ -16,12 +18,14 @@ do
 # edit syslog message
 MESSAGE=$(echo "$LINE" | sed -e 's/.* IPMI Event: //')
 
-# check for event state and set notification 
+[[ "$MESSAGE" == "$MSGOLD" ]] && continue
+
+# check for event state and set notification
 STATE=$(echo "$MESSAGE" | sed 's/.* \*\(.*\)\* .*/\1/g')
-[[ "${STATE,,}" = "nominal" ]] && CONDITION="normal"
-[[ "${STATE,,}" = "warning" ]] && CONDITION="warning"
-[[ "${STATE,,}" = "critical" ]] && CONDITION="alert"
+[[ "${STATE,,}" == "nominal" ]] && CONDITION="normal"
+[[ "${STATE,,}" == "warning" ]] && CONDITION="warning"
+[[ "${STATE,,}" == "critical" ]] && CONDITION="alert"
 
 sleep 1 |
-exec /usr/local/emhttp/webGui/scripts/notify -s "Notice [$HOSTNAME]" -d "$MESSAGE" -i "$CONDITION" && continue 2
+exec /usr/local/emhttp/webGui/scripts/notify -s "Notice [$HOST] - IPMI Event" -d "$MESSAGE" -i "$CONDITION" && continue 2
 done
