@@ -27,5 +27,5 @@ STATE=$(echo "$MESSAGE" | sed 's/.* \*\(.*\)\* .*/\1/g')
 [[ "${STATE,,}" == "critical" ]] && CONDITION="alert"
 
 sleep 1 |
-exec /usr/local/emhttp/webGui/scripts/notify -s "Notice [$HOST] - IPMI Event" -d "$MESSAGE" -i "$CONDITION" && continue 2
+exec /usr/local/emhttp/webGui/scripts/notify -e "unRAID Server Alert" -s "Notice [$HOST] - IPMI Event" -d "$MESSAGE" -i "$CONDITION" && continue 2
 done
