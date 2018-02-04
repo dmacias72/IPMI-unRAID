@@ -233,10 +233,9 @@ function get_highest_temp($hdds){
     $highest_temp = 0;
     foreach ($hdds as $serial => $hdd) {
         if (!array_key_exists($serial, $ignore)) {
-            if (shell_exec("hdparm -C /dev/${hdd} 2>/dev/null| grep -c standby") == 0){
-                $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A /dev/${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
-                $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
-            }
+            $temp = 0;
+            $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A -n standby /dev/${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
+            $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
         }
     }
     debug("Highest temp is ${highest_temp}ºC");
