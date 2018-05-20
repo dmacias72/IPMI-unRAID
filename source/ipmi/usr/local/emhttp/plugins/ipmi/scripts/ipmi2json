@@ -232,7 +232,6 @@ for($i = 0; $i <= $cmd_count; $i++){
         [ 'raw'   => $raw,
           'auto'  => $auto,
           'full'  => $full,
-          'range' => 64,
           'fans'  => $fans
         ];
 
