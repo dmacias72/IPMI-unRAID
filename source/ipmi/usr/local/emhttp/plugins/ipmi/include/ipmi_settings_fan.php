@@ -10,6 +10,7 @@ $fanpoll    = isset($fancfg['FANPOLL'])    ? intval($fancfg['FANPOLL'])         
 $hddpoll    = isset($fancfg['HDDPOLL'])    ? intval($fancfg['HDDPOLL'])              : 18;
 $hddignore  = isset($fancfg['HDDIGNORE'])  ? htmlspecialchars($fancfg['HDDIGNORE'])  : '';
 $harddrives = isset($fancfg['HARDDRIVES']) ? htmlspecialchars($fancfg['HARDDRIVES']) : 'enable';
+$range      = 64;
 
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
@@ -26,11 +27,11 @@ if($board !== 'Supermicro'){
     $board_model = intval(shell_exec("dmidecode -qt2|awk -F: '/^\tProduct Name:/{p=\$2} END{print substr(p,3,1)}'"));
     $board_file_status = true;
     if($board_model == '9'){
+        $range = 255;
         $board_json = [ 'Supermicro' =>
                 [ 'raw'   => '00 30 91 5A 3',
                   'auto'  => '00 30 45 01',
                   'full'  => '00 30 45 01 01',
-                  'range' => '255',
                   'fans'  => [
                     'FAN1234' => '10',
                     'FANA' => '11'
@@ -42,7 +43,6 @@ if($board !== 'Supermicro'){
                 [ 'raw'   => '00 30 70 66 01',
                   'auto'  => '00 30 45 01',
                   'full'  => '00 30 45 01 01',
-                  'range' => '64',
                   'fans'  => [
                     'FAN1234' => '00',
                     'FANA' => '01'
@@ -51,9 +51,6 @@ if($board !== 'Supermicro'){
         ];
     }
 }
-
-if (!array_key_exists('range', $board_json))
-    $board_json['range'] = 64;
 
 // fan network options
 $fanopts = ($netsvc === 'enable') ? '-h '.escapeshellarg($fanip).' -u '.escapeshellarg($user).' -p '.
