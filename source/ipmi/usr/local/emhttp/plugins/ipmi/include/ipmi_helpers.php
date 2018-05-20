@@ -285,7 +285,7 @@ function ipmi_fan_sensors($ignore=null) {
 
 /* get all fan options for fan control */
 function get_fanctrl_options(){
-    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status, $cmd_count;
+    global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status, $cmd_count, $range;
     if($board_status) {
         $i = 0;
         $ii = 0;
@@ -308,7 +308,6 @@ function get_fanctrl_options(){
                 $temphi  = 'TEMPHI_'.$name;
                 $fanmax  = 'FANMAX_'.$name;
                 $fanmin  = 'FANMIN_'.$name;
-                $range   = intval($board_json['range']);
 
                 // hidden fan id
                 echo '<input type="hidden" name="FAN_',$name,'" value="',$id,'"/>';
@@ -365,14 +364,14 @@ function get_fanctrl_options(){
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>Fan speed maximum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmax,'" class="',$tempid,' fanctrl-settings">',
-                get_minmax_options($range, 'HI', $fancfg[$fanmax]),
+                get_minmax_options('HI', $fancfg[$fanmax]),
                 '</select></dd></dl>';
 
                 // fan control minimum speed
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>Fan speed minimum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmin,'" class="',$tempid,' fanctrl-settings">',
-                get_minmax_options($range, 'LO', $fancfg[$fanmin]),
+                get_minmax_options('LO', $fancfg[$fanmin]),
                 '</select></dd></dl>&nbsp;';
 
                 $i++;
@@ -403,9 +402,9 @@ function get_temp_options($selected=0){
 }
 
 /* get options for high or low temp thresholds */
-function get_temp_range($range, $selected=0){
+function get_temp_range($order, $selected=0){
     $temps = [20,80];
-    if ($range === 'HI')
+    if ($order === 'HI')
       rsort($temps);
     $options = "";
     foreach(range($temps[0], $temps[1], 5) as $temp){
@@ -421,7 +420,8 @@ function get_temp_range($range, $selected=0){
 }
 
 /* get options for fan speed min and max */
-function get_minmax_options($range, $order, $selected=0){
+function get_minmax_options($order, $selected=0){
+    global $range;
     $incr = [1,$range];
     if ($order === 'HI')
       rsort($incr);
