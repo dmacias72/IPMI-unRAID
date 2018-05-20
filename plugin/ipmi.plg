@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2017.12.14">
+<!ENTITY version   "2018.05.20">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,10 @@
 
 <CHANGES>
 ##&name;
+###2018.05.20
+- format min and max percentages to one decimal place
+- add support for Supermicro X9 boards
+- set Supermicro boards to full speed mode (other modes seem to interfere with script)
 ###2017.12.14
 - add compatibility with System Temp plugin
 - add support for any sensor display in footer
