@@ -329,7 +329,6 @@ while(TRUE){ while(TRUE){
         $board0 = ($i == 0) ? $board : $board.$i;
         $raw    = $board_json[$board0]['raw'];
         $fans   = $board_json[$board0]['fans'];
-        $range  = intval($board_json[$board0]['range']);
         $hex    = '';
         $msg    = 'Fan:Temp';
         $cmd    = '';
