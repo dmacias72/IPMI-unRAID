@@ -136,7 +136,7 @@ if($daemon){
 #############################################
 
 #############################################
-# Supermicro
+# Supermicro X10/X11
 # ipmi-raw 00 30 70 66 01 00 64
 # ipmi-raw 00 30 70 66 AA BB CC
 #
@@ -149,7 +149,20 @@ if($daemon){
 # 01 - FAN A
 #
 # CC
-# 00 to 64 - Set Speed
+# 00 to 64 - Set Speed (0-64)
+#############################################
+
+#############################################
+# Supermicro X9
+# ipmi-raw 00 30 91 5A 3 00 FF
+# ipmi-raw 00 30 91 5A 3 BB CC
+#
+# BB
+# 10 - FAN 1/2/3/4
+# 11 - FAN A
+#
+# CC
+# 00 to FF - Set Speed (0-255)
 #############################################
 
 ##############################
@@ -198,7 +211,7 @@ function autofan() {
         //if board is Supermicro
         $raw    = $board_json[$board]['raw'];
         $auto = $board_json[$board]['auto'];
-        $mode = trim(shell_exec("ipmi-raw 00 30 45 00 | awk -F '45 00' '{print $2}'"));
+        $mode = trim(shell_exec("ipmi-raw 00 30 45 00 | awk -F '45 00 ' '{print $2}'"));
         $cmd  = "ipmi-raw $auto $mode $fanopts 2>&1 >/dev/null &";
     }
     shell_exec($cmd);
@@ -292,6 +305,10 @@ $hdd_count = $hddpoll * 10;
 
 fanlog('Starting Fan Control');
 
+if($board == 'Supermicro'){
+    fullfan();
+}
+
 while(TRUE){ while(TRUE){
 ####  DO YOUR STUFF HERE  ####
 
@@ -312,11 +329,12 @@ while(TRUE){ while(TRUE){
         $board0 = ($i == 0) ? $board : $board.$i;
         $raw    = $board_json[$board0]['raw'];
         $fans   = $board_json[$board0]['fans'];
+        $range  = intval($board_json[$board0]['range']);
+        $hex    = '';
+        $msg    = 'Fan:Temp';
+        $cmd    = '';
+        $exec   = false;
         $fan_count  = 0;
-        $hex = '';
-        $msg = 'Fan:Temp';
-        $cmd = '';
-        $exec = false;
 
         foreach($fans as $fan => $value){
 
@@ -326,7 +344,7 @@ while(TRUE){ while(TRUE){
                 $templo  = (isset($fancfg["TEMPLO_$fan"])) ? intval($fancfg["TEMPLO_$fan"])  : 30;
                 $temphi  = (isset($fancfg["TEMPHI_$fan"])) ? intval($fancfg["TEMPHI_$fan"])  : 45;
                 $fanmin  = (isset($fancfg["FANMIN_$fan"])) ? intval($fancfg["FANMIN_$fan"])  : 16;
-                $fanmax  = (isset($fancfg["FANMAX_$fan"])) ? intval($fancfg["FANMAX_$fan"])  : 64;
+                $fanmax  = (isset($fancfg["FANMAX_$fan"])) ? intval($fancfg["FANMAX_$fan"])  : $range;
                 $reading = floatval($sensors[$temp]['Reading']);
                 $name    = htmlspecialchars($sensors[$temp]['Name']);
 
@@ -335,21 +353,26 @@ while(TRUE){ while(TRUE){
                     $pwm = 1;
                 }elseif ($reading >= $temphi){
                     $pct = 1;
-                    $pwm = 64;
+                    $pwm = $range;
                 }else{
                     $pct = ($reading-$templo)/($temphi-$templo);
-                    $pwm = round(($pct)*16)*4; //round
+                    $pwm = round(($pct)*($range/4))*4; //round
                 }
                 //impose fan lower limit
                 if ($pwm <= $fanmin){
                     $pwm  = $fanmin;
-                    $pct  = $fanmin/64;
+                    $pct  = $fanmin/$range;
                 }
 
                 //impose fan upper limit
                 if ($pwm >= $fanmax){
                     $pwm  = $fanmax;
-                    $pct  = $fanmax/64;
+                    $pct  = $fanmax/$range;
+                }
+
+                //convert pwm to hexadecimal
+                if($range == 255){
+                    $pwm = dechex($pwm);
                 }
 
                 //pad pwm to 2 places
@@ -357,7 +380,7 @@ while(TRUE){ while(TRUE){
 
                 //add fan, value, temp sensor name and reading
                 $pct  = str_pad(round($pct*100), 2, ' ', STR_PAD_LEFT);
-                $msg .= ", ${fan}(${pct}%):".str_replace('Temperature','Temp',${name})."(${reading}°C)";
+                $msg .= ", ${fan}(${pct}%):".str_replace('Temperature','Temp',$name)."(${reading}°C)";
 
            }else{
                 $pwm ='00';
@@ -367,10 +390,11 @@ while(TRUE){ while(TRUE){
                 //add value to hex for Asrock boards
                 if($cmd_count !== 0 && $fan_count == 0){
                     // set value for CPU fans for dual sockets
-                    if($pwm == '00')
+                    if($pwm == '00'){
                         $hex .= ' 00 00';
-                    else
+                    }else{
                         $hex .= " 01 $pwm";
+                    }
 
                 }else{
                     $hex .= " $pwm";
@@ -381,7 +405,7 @@ while(TRUE){ while(TRUE){
                 $cmd_str = "ipmi-raw $raw $value $pwm $fanopts 2>&1; ";
 
                 //check if new pwm for FAN1234 then add to cmd string
-                if($value == '00' && $current_pwm !== $pwm && $pwm !== '00'){
+                if(($value == '00' || $value == '10') && $current_pwm !== $pwm && $pwm !== '00'){
                     $cmd .= $cmd_str;
 
                     //set current value for next loop
@@ -389,7 +413,7 @@ while(TRUE){ while(TRUE){
                     $exec = true;
                 }
                 // check if new pwm for FANA then add to cmd string
-                if($value == '01' && $current_pwm2 !== $pwm && $pwm !== '00'){
+                if(($value == '01' || $value == '11') && $current_pwm2 !== $pwm && $pwm !== '00'){
                     $cmd .= $cmd_str;
 
                     //set current value for next loop
@@ -427,8 +451,8 @@ while(TRUE){ while(TRUE){
         // execute command if exec set
         if($exec){
             shell_exec($cmd);
-        if($debug)
-            fanlog($cmd);
+            if($debug)
+                fanlog($cmd);
 
             //log changes
             fanlog($msg);
