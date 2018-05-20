@@ -298,8 +298,9 @@ function get_fanctrl_options(){
                     if($ii == 0){
                         $name = 'FAN1234';
                         $ii ++;
-                    }else
+                    }else{
                         continue;
+                    }
                 }
                 $tempid  = 'TEMP_'.$name;
                 $temp    = $fansensors[$fancfg[$tempid]];
@@ -307,17 +308,19 @@ function get_fanctrl_options(){
                 $temphi  = 'TEMPHI_'.$name;
                 $fanmax  = 'FANMAX_'.$name;
                 $fanmin  = 'FANMIN_'.$name;
+                $range   = intval($board_json['range']);
 
                 // hidden fan id
                 echo '<input type="hidden" name="FAN_',$name,'" value="',$id,'"/>';
 
                 // fan name: reading => temp name: reading
                 echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
-                if ($temp['Name'])
+                if ($temp['Name']){
                     echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
-                    $fancfg[$templo],', ',$fancfg[$temphi],', ',intval(intval($fancfg[$fanmin])/64*100),'-',intval(intval($fancfg[$fanmax])/64*100),'%';
-                else
+                    $fancfg[$templo],', ',$fancfg[$temphi],', ',number_format((intval(intval($fancfg[$fanmin])/$range*1000)/10),1),'-',number_format((intval(intval($fancfg[$fanmax])/$range*1000)/10),1),'%';
+                }else{
                     echo 'Auto';
+                }
                 echo '</span><span class="fanctrl-settings">&nbsp;</span>';
 
                 // check if board.json exists then if fan name is in board.json
@@ -362,42 +365,19 @@ function get_fanctrl_options(){
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>Fan speed maximum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmax,'" class="',$tempid,' fanctrl-settings">',
-                get_minmax_options('HI', $fancfg[$fanmax]),
+                get_minmax_options($range, 'HI', $fancfg[$fanmax]),
                 '</select></dd></dl>';
 
                 // fan control minimum speed
                 echo '<dl class="fanctrl-settings">',
                 '<dt><dl><dd>Fan speed minimum (%):</dd></dl></dt><dd>',
                 '<select name="',$fanmin,'" class="',$tempid,' fanctrl-settings">',
-                get_minmax_options('LO', $fancfg[$fanmin]),
+                get_minmax_options($range, 'LO', $fancfg[$fanmin]),
                 '</select></dd></dl>&nbsp;';
 
                 $i++;
             }
         }
-    } elseif($board === 'Supermicro'){
-            // temperature sensor
-            echo '<dl>',
-            '<dt>Temperature sensor:</dt><dd>',
-            '<select name="TEMP_FAN">',
-            '<option value="0">Auto</option>',
-            get_temp_options($fancfg['TEMP_FAN']),
-            '</select></dd></dl>';
-
-            // low temperature threshold
-            echo '<dl>',
-            '<dt>Low temperature threshold (&deg;C):</dt>',
-            '<dd><select name="TEMPLO_FAN">',
-            get_temp_range('LO', $fancfg['TEMPLO_FAN']),
-            '</select></dd></dl>';
-
-            // high temperature threshold
-            echo '<dl>',
-            '<dt>High temperature threshold (&deg;C):</dt>',
-            '<dd><select name="TEMPHI_FAN">',
-            get_temp_range('HI', $fancfg['TEMPHI_FAN']),
-            '</select></dd></dl>';
-
     } else {
         echo '<dl><dt>&nbsp;</dt><dd><p><b><font class="red">Your board is not currently supported</font></b></p></dd></dl>';
     }
@@ -441,9 +421,9 @@ function get_temp_range($range, $selected=0){
 }
 
 /* get options for fan speed min and max */
-function get_minmax_options($range, $selected=0){
-    $incr = [1,64];
-    if ($range === 'HI')
+function get_minmax_options($range, $order, $selected=0){
+    $incr = [1,$range];
+    if ($order === 'HI')
       rsort($incr);
     $options = "";
     foreach(range($incr[0], $incr[1], 1) as $value){
@@ -453,21 +433,8 @@ function get_minmax_options($range, $selected=0){
         if (intval($selected) === $value)
             $options .= ' selected';
 
-        $options .= '>'.intval(($value/64)*100).'</option>';
+        $options .= '>'.number_format((intval(($value/$range)*1000)/10),1).'</option>';
     }
-    return $options;
-}
-
-/* get options 1 - 64 for fan minimum speed */
-function get_min_options($limit){
-    $options = '';
-        for($i = 1; $i <= 64; $i++){
-            $options .= '<option value="'.$i.'"';
-            if(intval($limit) === $i)
-                $options .= ' selected';
-
-            $options .= '>'.intval(($i/64)*100).'</option>';
-        }
     return $options;
 }
 
