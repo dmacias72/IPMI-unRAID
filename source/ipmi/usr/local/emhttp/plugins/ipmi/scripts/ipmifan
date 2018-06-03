@@ -354,7 +354,7 @@ while(TRUE){ while(TRUE){
                     $pct = 1;
                     $pwm = $range;
                 }else{
-                    $pct = ($reading-$templo)/($temphi-$templo);
+                    $pct = ($reading-$templo)/($temphi-$templo)*($fanmax-$fanmin)/$range + $fanmin/$range;
                     $pwm = round(($pct)*($range/4))*4; //round
                 }
                 //impose fan lower limit
