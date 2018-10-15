@@ -45,7 +45,8 @@ Markdown="false"
         <p>Table is split into pages. Drop down selects the number of rows to display per page. Reset button resets the table filters.</p>
     </blockquote>
 </div>
-<script src="/plugins/ipmi/js/parser-network.min.js"></script>
+<script src="<?=autov('/plugins/ipmi/js/parser-network.min.js');?>"></script>
+
 <script>
 $(function(){
     //event archive switch set cookie and toggle archive setting

@@ -2,8 +2,8 @@ Menu="IPMITools:1"
 Title="Sensors"
 Markdown="false"
 ---
-<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/ipmi.css">
-<link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter.css">
+<link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/ipmi.css');?>">
+<link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/tablesorter.css');?>">
 <link type="text/css" rel="stylesheet" href="/plugins/ipmi/css/tablesorter-<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'white' : 'black';?>.css">
 <link type="text/css" rel="stylesheet" href="/webGui/styles/jquery.switchbutton.css">
 <style>
@@ -49,9 +49,9 @@ table.tablesorter tbody tr:nth-child(even) {
     </blockquote>
 </div>
 
-<script src="/plugins/ipmi/js/jquery.tablesorter.combined.min.js"></script>
-<script src="/plugins/ipmi/js/jquery.tablesorter.pager.min.js"></script>
-<script src="/webGui/javascript/jquery.switchbutton.js"></script>
+<script src="<?=autov('/plugins/ipmi/js/jquery.tablesorter.combined.min.js');?>"></script>
+<script src="<?=autov('/plugins/ipmi/js/jquery.tablesorter.pager.min.js');?>"></script>
+<script src="<?=autov('/webGui/javascript/jquery.switchbutton.js');?>"></script>
 
 <script>
 $(function(){
