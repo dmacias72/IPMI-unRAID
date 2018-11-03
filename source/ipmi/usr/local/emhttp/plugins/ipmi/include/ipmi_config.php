@@ -56,12 +56,16 @@ if(($arg_commit) && (!empty($config_old))){
 if($commit && !empty($config)){
     // save config file changes
     file_put_contents($config_file, $config);
-    $cmd .= "--commit $netopts";
+    $cmd .= "--commit $netopts 2>&1";
 
-}else
-    $cmd .= "--checkout $netopts";
+    exec($cmd, $output, $return_var);
+}else{
+    $cmd .= "--checkout $netopts 2>/dev/null";
 
-exec($cmd, $output, $return_var=null);
+    exec($cmd, $output, $return_var=null);
+}
+
+
 
 if($return_var){
 
@@ -69,13 +73,13 @@ if($return_var){
     if(($commit) && !empty($config_old))
         file_put_contents($config_file, $config_old);
 
-    $return = ['error' => $output,
+    $return = [
+        'error' => $output,
         'success' => false];
-
-}else
+}else{
     $return = [
         'config' => file_get_contents($config_file),
         'success' => true];
-
+}
 echo json_encode($return);
 ?>
