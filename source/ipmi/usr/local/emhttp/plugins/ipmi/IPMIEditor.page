@@ -156,7 +156,7 @@ function commitConfig() {
                     location = '/Settings/IPMI';
                 });
             }else{
-                swal({title:Title,text:data.error,type:'error'});
+                swal({title:Title,text:data.error.join("\n"),type:'error'});
             }
         }, 'json');
     }
