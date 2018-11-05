@@ -237,6 +237,7 @@ function fullfan() {
         $cmd  = "ipmi-raw $full $fanopts 2>&1 >/dev/null &";
     }
     shell_exec($cmd);
+    sleep(10);
 }
 
 /* get highest temp of hard drives */
