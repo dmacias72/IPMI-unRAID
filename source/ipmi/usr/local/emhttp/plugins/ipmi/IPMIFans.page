@@ -1,7 +1,6 @@
 Menu="IPMI:2"
 Title="Fan Control"
 Markdown="false"
-Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/dev/null\")"
 ---
 
 <div id="title" style="margin-top: -22px;">
