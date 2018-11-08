@@ -24,7 +24,7 @@ if($board !== 'Supermicro'){
 }else{
     //if board is Supermicro
     $cmd_count = 0;
-    $board_model = intval(shell_exec("dmidecode -qt2|awk -F: '/^\tProduct Name:/{p=\$2} END{print substr(p,3,1)}'"));
+    $board_model = ( $override == 'disable') ? intval(shell_exec("dmidecode -qt2|awk -F: '/^\tProduct Name:/{p=\$2} END{print substr(p,3,1)}'")) : $omodel;
     $board_file_status = true;
     if($board_model == '9'){
         $range = 255;

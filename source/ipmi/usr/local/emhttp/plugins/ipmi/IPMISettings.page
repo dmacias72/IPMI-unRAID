@@ -49,6 +49,37 @@ Enable Network Connection(s):
 
 > Password for IPMI connection(s).
 
+Enable Virtual Machine Override:
+: <select id="OVERRIDE" class="ipmi-run ipmi-lan" name="OVERRIDE" size="1"  title="Enable motherboard override for virtual machines">
+  <?=mk_option($override, 'disable', 'No');?>
+  <?=mk_option($override, 'enable', 'Yes');?>
+  </select>
+
+> Enable motherboard override for virtual machines
+> Selecting an incorrect model or motherboard will not work.
+> Settings and commands are specific to each manufacture and model
+
+<label class="ipmi-override">Motherboard:</label>
+: <select id="OBOARD" class="ipmi-run ipmi-lan ipmi-override" name="OBOARD" size="1"  title="Select motherboard">
+  <?=mk_option($oboard, 'ASRock', 'ASRock');?>
+  <?=mk_option($oboard, 'Supermicro', 'Supermicro');?>
+  </select>
+
+> Select either ASRock or Supermicro
+> Selecting an incorrect motherboard will not work.
+> Settings and commands are specific to each manufacture
+
+<label class="ipmi-override ipmi-model">Supermicro Model:</label>
+: <select id="OMODEL" class="ipmi-run ipmi-lan ipmi-override ipmi-model" name="OMODEL" size="1"  title="Select Supermicro Model">
+  <?=mk_option($omodel, '9', 'X9');?>
+  <?=mk_option($omodel, '10', 'X10');?>
+  <?=mk_option($omodel, '11', 'X11');?>
+  </select>
+
+> Select Supermicro model series
+> Selecting an incorrect model will not work.
+> Settings and commands are specific to each model
+
 <input class="ipmi-run" type="button" id="ipmi-default" value="Default"><input type="button" value="Reset BMC" id="bmc-reset" title="do a cold reset of the BMC">
 : <input id="btnApply" type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 
@@ -250,6 +281,10 @@ $(function(){
     $('#NETWORK').change(checkNETWORK);
     checkNETWORK();
 
+    $('#OVERRIDE').change(checkOVERRIDE);
+    $('#OBOARD').change(checkOVERRIDE);
+    checkOVERRIDE();
+
     $('#LOCAL').change(checkLOCAL);
     checkLOCAL();
 
@@ -352,6 +387,20 @@ function checkNETWORK() {
     else {
         $('.ipmi-lan').show();
         $('.ipmi-run').prop('disabled', ("<?=$seld_run || $fanctrl_run?>" == true));
+    }
+}
+
+function checkOVERRIDE() {
+    if ($('#OVERRIDE')[0].selectedIndex < 1 )
+        $('.ipmi-override').hide();
+    else {
+        $('.ipmi-override').show();
+        if ($('#OBOARD')[0].selectedIndex < 1 )
+            $('.ipmi-model').hide();
+        else {
+            $('.ipmi-model').show();
+    }
+
     }
 }
 

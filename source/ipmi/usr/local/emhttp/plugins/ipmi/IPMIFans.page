@@ -1,7 +1,7 @@
 Menu="IPMI:2"
 Title="Fan Control"
 Markdown="false"
-Cond="array_key_exists(trim(shell_exec(\"dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'\")), ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''])"
+Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/dev/null\")"
 ---
 
 <div id="title" style="margin-top: -22px;">
