@@ -13,6 +13,7 @@ $password  = isset($cfg['PASSWORD'])  ? htmlspecialchars($cfg['PASSWORD'])  : ''
 $override  = isset($cfg['OVERRIDE'])  ? htmlspecialchars($cfg['OVERRIDE'])  : 'disable';
 $oboard    = isset($cfg['OBOARD'])    ? htmlspecialchars($cfg['OBOARD'])  : '';
 $omodel    = isset($cfg['OMODEL'])    ? htmlspecialchars($cfg['OMODEL'])  : '';
+$ocount    = isset($cfg['OCOUNT'])    ? htmlspecialchars($cfg['OCOUNT'])  : '0';
 $ignore    = isset($cfg['IGNORE'])    ? htmlspecialchars($cfg['IGNORE'])    : '';
 $dignore   = isset($cfg['DIGNORE'])   ? htmlspecialchars($cfg['DIGNORE'])   : '';
 $devignore = isset($cfg['DEVIGNORE']) ? htmlspecialchars($cfg['DEVIGNORE']) : '';

@@ -69,7 +69,16 @@ Enable Virtual Machine Override:
 > Selecting an incorrect motherboard will not work.
 > Settings and commands are specific to each manufacture
 
-<label class="ipmi-override ipmi-model">Supermicro Model:</label>
+<label class="ipmi-override ipmi-count">Motherboard CPU sockets:</label>
+: <select id="OCOUNT" class="ipmi-run ipmi-lan ipmi-override ipmi-count" name="OCOUNT" size="1"  title="Select number of ASRock physical CPU sockets">
+  <?=mk_option($ocount, '0', 'Single');?>
+  <?=mk_option($ocount, '1', 'Multiple');?>
+  </select>
+
+> Select the acutal number of physical CPU sockets your ASRock board has.
+> This is not the same as the virtual cores for your virtual machine.
+
+<label class="ipmi-override ipmi-model">Motherboard Model:</label>
 : <select id="OMODEL" class="ipmi-run ipmi-lan ipmi-override ipmi-model" name="OMODEL" size="1"  title="Select Supermicro Model">
   <?=mk_option($omodel, '9', 'X9');?>
   <?=mk_option($omodel, '10', 'X10');?>
@@ -391,16 +400,18 @@ function checkNETWORK() {
 }
 
 function checkOVERRIDE() {
-    if ($('#OVERRIDE')[0].selectedIndex < 1 )
+    if ($('#OVERRIDE')[0].selectedIndex < 1 ){
         $('.ipmi-override').hide();
-    else {
+    }else {
         $('.ipmi-override').show();
-        if ($('#OBOARD')[0].selectedIndex < 1 )
-            $('.ipmi-model').hide();
-        else {
-            $('.ipmi-model').show();
-    }
 
+        if ($('#OBOARD')[0].selectedIndex < 1 ){
+            $('.ipmi-model').hide();
+            $('.ipmi-count').show();
+        }else{
+            $('.ipmi-model').show();
+            $('.ipmi-count').hide();
+        }
     }
 }
 
