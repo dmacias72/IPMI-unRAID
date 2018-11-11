@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2018.11.08a">
+<!ENTITY version   "2018.11.10">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,9 @@
 
 <CHANGES>
 ##&name;
+###2018.11.10
+- add fixed fan control page conditions
+- add more css and js autov thanks to ljm42
 ###2018.11.08a
 - fix remove fan control page condition
 ###2018.11.08
@@ -29,6 +32,7 @@
 - update tablesorter to v2.31.0
 ###2018.10.14
 - update fan control script
+- add css and js autov
 ###2018.06.03
 - fix scaled fan control thanks to gmk2
 ###2018.05.20a
