@@ -264,6 +264,12 @@ function ipmi_fan_sensors($ignore=null) {
 
     // add highest hard drive temp sensor
     $output[] = "99,HDD Temperature,Temperature, $hdd_temp,C,Ok";
+    // test sensors
+    //$output[] = "700,CPU_FAN1,Fan,1200,RPM,Ok";
+    //$output[] = "701,CPU_FAN2,Fan,1200,RPM,Ok";
+    //$output[] = "702,SYS_FAN1,Fan,1200,RPM,Ok";
+    //$output[] = "703,SYS_FAN2,Fan,1200,RPM,Ok";
+    //$output[] = "704,SYS_FAN3,Fan,1200,RPM,Ok";
 
     // key names for ipmi sensors output
     $keys = ['ID', 'Name', 'Type', 'Reading', 'Units', 'Event'];
@@ -288,18 +294,45 @@ function get_fanctrl_options(){
     global $fansensors, $fancfg, $board, $board_json, $board_file_status, $board_status, $cmd_count, $range;
     if($board_status) {
         $i = 0;
-        $ii = 0;
+        $fan1234 = 0;
+        $sysfan = 0;
+        $cpufan = 0;
         foreach($fansensors as $id => $fan){
             if($i > 7) break;
             if ($fan['Type'] === 'Fan'){
                 $name    = htmlspecialchars($fan['Name']);
-                if($board ==='Supermicro' && $name !== 'FANA'){
-                    $i++;
-                    if($ii == 0){
-                        $name = 'FAN1234';
-                        $ii ++;
-                    }else{
-                        continue;
+                $display = $name;
+                if($board ==='Supermicro'){
+                    $syscpu = false;
+                    if(strpos ($name, 'SYS_FAN') !== false){
+                        $syscpu = true;
+                        $i++;
+                        if($sysfan == 0){
+                            $name = 'FANA';
+                            $display = 'SYS_FAN';
+                            $sysfan++;
+                        }else{
+                            continue;
+                        }
+                    }elseif(strpos ($name, 'CPU_FAN') !== false){
+                        $syscpu = true;
+                        $i++;
+                        if($cpufan == 0){
+                            $name = 'FAN1234';
+                            $display = 'CPU_FAN';
+                            $cpufan++;
+                        }else{
+                            continue;
+                        }
+                    }elseif($name !== 'FANA' && !$syscpu) {
+                        $i++;
+                        if($fan1234 == 0){
+                            $name = 'FAN1234';
+                            $display = 'FAN1234';
+                            $fan1234++;
+                        }else{
+                            continue;
+                        }
                     }
                 }
                 $tempid  = 'TEMP_'.$name;
@@ -313,7 +346,7 @@ function get_fanctrl_options(){
                 echo '<input type="hidden" name="FAN_',$name,'" value="',$id,'"/>';
 
                 // fan name: reading => temp name: reading
-                echo '<dl><dt>',$name,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
+                echo '<dl><dt>',$display,' (',floatval($fan['Reading']),' ',$fan['Units'],'):</dt><dd><span class="fanctrl-basic">';
                 if ($temp['Name']){
                     echo $temp['Name'],' ('.floatval($temp['Reading']),' ',$temp['Units'].'), ',
                     $fancfg[$templo],', ',$fancfg[$temphi],', ',number_format((intval(intval($fancfg[$fanmin])/$range*1000)/10),1),'-',number_format((intval(intval($fancfg[$fanmax])/$range*1000)/10),1),'%';
