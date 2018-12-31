@@ -145,8 +145,8 @@ if($daemon){
 # 01 - Set value
 #
 # BB
-# 00 - FAN 1/2/3/4
-# 01 - FAN A
+# 00 - FAN 1/2/3/4 or CPU_FAN1/2
+# 01 - FAN A or SYS_FAN1/2/3
 #
 # CC
 # 00 to 64 - Set Speed (0-64)
