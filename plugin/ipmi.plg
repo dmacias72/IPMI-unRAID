@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2018.11.10">
+<!ENTITY version   "2018.12.31">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,8 @@
 
 <CHANGES>
 ##&name;
+###2018.12.31
+- add support for Supermicro boards with CPU_FAN and SYS_FAN fan names
 ###2018.11.10
 - add fixed fan control page conditions
 - add more css and js autov thanks to ljm42
