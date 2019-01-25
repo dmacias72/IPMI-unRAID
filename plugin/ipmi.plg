@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2018.12.31">
+<!ENTITY version   "2019.01.24">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,8 @@
 
 <CHANGES>
 ##&name;
+###2019.01.24
+- update settings icon to fa font
 ###2018.12.31
 - add support for Supermicro boards with CPU_FAN and SYS_FAN fan names
 ###2018.11.10
@@ -434,12 +436,12 @@ The 'install' script.
 -->
 <FILE Run="/bin/bash" Method="install">
 <INLINE>
-#Verify unRAID Version
+#Verify Unraid Version
 source /etc/unraid-version
 VER=${version:0:3}
 
 if [[ $VER == 6.0 ]]; then
-    echo "unRAID version 6.1 or higher is required"
+    echo "Unraid version 6.1 or higher is required"
     exit 1
 fi
 
@@ -480,7 +482,7 @@ else
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been installed."
-echo " Copyright 2015-2018, &author;"
+echo " Copyright 2015-2019, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
@@ -521,7 +523,7 @@ done
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
-echo " Copyright 2015-2018, &author;"
+echo " Copyright 2015-2019, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
