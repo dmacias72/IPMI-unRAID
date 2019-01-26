@@ -1,11 +1,12 @@
 Menu="IPMI:2"
 Title="Fan Control"
+Tag="thermometer"
 Markdown="false"
 Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/dev/null\") || array_key_exists(trim(shell_exec(\"dmidecode -t 2 | grep 'Manufacturer' | awk -F 'r:' '{print $2}'\")), ['ASRock'=>'','ASRockRack'=>'','Supermicro'=>''])"
 ---
 
 <div id="title" style="margin-top: -22px;">
-    <span class="left"><img class="icon" src="/plugins/ipmi/icons/fancontrol.png"> Fan Control </span>
+    <span class="left"><i class="icon fa fa-thermometer"></i> Fan Control </span>
     <span class="status" style="margin-top: 50px;margin-left: -200px;">
     <img class="board-img" src=""></span>
     <span class="status" id="fanctrl-status">Fan Control: <?=$fanctrl_status;?></span>
@@ -108,7 +109,7 @@ Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/d
 
 <!-- Fan Settings -->
 
-<div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Settings </span></div>
+<div id="title"><span class="left"><i class="icon fa fa-cog"></i> Fan Settings </span></div>
 
     <span class="status" style="margin-top: 0px;"><input type="checkbox" id="advancedview"></span>
 
@@ -163,7 +164,7 @@ Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/d
 
 </form>
 
-<div id="title" ><span class="left"><img class="icon" src="/plugins/ipmi/icons/fan.png"> Fan Control Log </span></div>
+<div id="title" ><span class="left"><i class="icon fa fa-file"></i> Fan Control Log </span></div>
 <table class="tablesorter fanlog" style="margin-top: 0px;">
     <thead>
         <th>Logfile</th>

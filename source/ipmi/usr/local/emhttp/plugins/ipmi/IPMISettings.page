@@ -1,5 +1,7 @@
 Menu="IPMI:1"
 Title="Settings"
+Icon="heartbeat"
+Tag="cog"
 ---
 <? require_once '/usr/local/emhttp/plugins/ipmi/include/ipmi_settings.php';?>
 
@@ -7,7 +9,7 @@ Title="Settings"
 <link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/ipmi.css');?>">
 
 <div id="title" style="margin-top: -22px;">
-    <span class="left"><img class="icon" src="/plugins/ipmi/icons/sensors.png"> IPMI Settings</span>
+    <span class="left"><i class="icon fa fa-cog"></i> IPMI Settings</span>
     <span class="status" style="margin-top: 50px;margin-left: -200px;">
     <img id="board-img" src=""></span>
 </div>
@@ -95,7 +97,7 @@ Enable Virtual Machine Override:
 </form>
 
 <div id="title" >
-    <span class="left"><img class="icon" src="/plugins/ipmi/icons/sensors.png"> Event Notification</span>
+    <span class="left"><i class="icon fa fa-comment"></i> Event Notification</span>
     <span class="status" id="notify-status">Event Notification: <?=$seld_status;?> </span>
 </div>
 
@@ -135,7 +137,7 @@ Event Polling Time:
 >
 > Reset BMC button performs a cold reset of the BMC
 
-<div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/mb.png"> Display Settings</span></div>
+<div id="title"><span class="left"><i class="icon fa fa-desktop"></i> Display Settings</span></div>
 
 <form markdown="1" id="settings-ignore" name="ignore_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
@@ -194,7 +196,7 @@ Available Hard Drives:
 : <input type="submit" value="Apply"><input type="button" value="Done" onClick="done()">
 </form>
 
-<div id="title"><span class="left"><img class="icon" src="/plugins/ipmi/icons/cpu.png"> Footer Settings</span></div>
+<div id="title"><span class="left"><i class="icon fa fa-sticky-note"></i> Footer Settings</span></div>
 
 <form markdown="1" id="settings-footer" name="footer_settings" method="POST" action="/update.php" target="progressFrame">
 <input type="hidden" name="#file" value="ipmi/ipmi.cfg" />
@@ -246,7 +248,7 @@ Sensor #4:
 $(function(){
     // append readings tab
     $('.tabs')
-        .append('<div class="tab"><input type="radio" name="tabs2" id="tab5"><label for="tab5"><img class="icon" src="/plugins/ipmi/icons/readings.png">Readings</label></div>');
+        .append('<div class="tab"><input type="radio" name="tabs2" id="tab5"><label for="tab5"><i class="icon fa fa-heartbeat"></i>Readings</label></div>');
 
     // dynamix plugin update api
     <?if (function_exists('plugin_update_available') && $version = plugin_update_available('ipmi')):?>

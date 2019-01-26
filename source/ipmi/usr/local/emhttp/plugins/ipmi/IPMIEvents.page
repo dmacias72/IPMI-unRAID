@@ -1,5 +1,6 @@
 Menu="IPMITools:2"
 Title="Event Log"
+Tag="file"
 Markdown="false"
 ---
 <div>

@@ -1,5 +1,6 @@
 Menu="IPMI:3"
 Title="Config Editor"
+Tag="cogs"
 Markdown="false"
 ---
 <link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/codemirror/codemirror.min.css');?>">
@@ -13,7 +14,7 @@ Markdown="false"
 </style>
 
 <div id="title" style="margin-top: -22px;">
-    <span class="left"><img class="icon" src="/plugins/ipmi/icons/configeditor.png"> IPMI Configuration Editor</span>
+    <span class="left"><i class="icon fa fa-cogs"></i> IPMI Configuration Editor</span>
 </div>
 
 <form id="autoload-form" method="POST" action="/update.php" target="progressFrame">
