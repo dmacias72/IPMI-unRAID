@@ -33,14 +33,14 @@ if (!empty($disp_sensors)){
                 if ($disp_reading > $UpperC && $UpperC != 0)
                     $Color = 'red';
 
-                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/cpu.png' class='icon'><font color='$Color'>".
+                $displays[] = "<span title='$disp_name ($disp_id)'><i class='icon fa fa-thermometer'></i><font color='$Color'>".
                     format_ipmi_temp(floatval($disp_reading), htmlspecialchars($_GET['unit']), htmlspecialchars($_GET['dot'])).'</font></span>';
             }elseif($readings[$disp_sensor]['Type'] === 'Fan'){
                 // if Fan RPMs are less than lower non-critical
                 if ($disp_reading < $LowerNC || $disp_reading < $LowerC || $disp_reading < $LowerNR)
                     $Color = "red";
 
-                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/fan.png' class='icon'><font color='$Color'>".
+                $displays[] = "<span title='$disp_name ($disp_id)'><i class='icon fa fa-tachometer'></i><font color='$Color'>".
                     floatval($disp_reading)."</font><small>rpm</small></span>";
             }elseif($readings[$disp_sensor]['Type'] === 'Voltage'){
                 // if Voltage is less than lower non-critical
