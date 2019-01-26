@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2019.01.24">
+<!ENTITY version   "2019.01.25">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,9 @@
 
 <CHANGES>
 ##&name;
+###2019.01.25
+- remove all icons and convert to fa fonts
+- fix summarized notification misalignment caused by tablesorter css
 ###2019.01.24
 - update settings icon to fa font
 ###2018.12.31
@@ -339,6 +342,10 @@ DIGNORE=""
 DASH="enable"
 DEVIGNORE=""
 DEVS="enable"
+OVERRIDE="disable"
+OBOARD="Supermicro"
+OCOUNT="0"
+OMODEL="9"
 ]]>
 </INLINE>
 </FILE>
