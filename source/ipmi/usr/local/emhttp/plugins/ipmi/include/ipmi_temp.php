@@ -49,16 +49,16 @@ if (!empty($disp_sensors)){
                 if ($disp_reading > $UpperNC || $disp_reading > $UpperC || $disp_reading > $UpperNR)
                     $Color = "red";
 
-                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/mb.png' class='icon'><font color='$Color'>".
+                $displays[] = "<span title='$disp_name ($disp_id)'><i class='icon fa fa-bolt'></i><font color='$Color'>".
                     floatval($disp_reading)."</font><small>v</small></span>";
             }elseif($readings[$disp_sensor]['Type'] === 'OEM Reserved'){
                 if($disp_reading === 'Medium')
                     $Color = 'orange';
                 if($disp_reading === 'High')
                     $Color = 'Red';
-                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/cpu.png' class='icon'><font color='$Color'>$disp_reading</font></span>";
+                $displays[] = "<span title='$disp_name ($disp_id)'><i class='icon fa fa-thermometer'></i><font color='$Color'>$disp_reading</font></span>";
             }else{
-                $displays[] = "<span title='$disp_name ($disp_id)'><img src='/plugins/ipmi/icons/mb.png' class='icon'><font color='$Color'>$disp_reading</font></span>";
+                $displays[] = "<span title='$disp_name ($disp_id)'><i class='icon fa fa-tachometer'><font color='$Color'>$disp_reading</font></span>";
             }
         }
     }
