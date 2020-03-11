@@ -15,7 +15,7 @@ $range      = 64;
 $fanip   = (isset($fancfg['FANIP']) && ($netsvc === 'enable')) ? htmlspecialchars($fancfg['FANIP']) : htmlspecialchars($ipaddr) ;
 
 /* board info */
-if($board !== 'Supermicro'){
+if($board === 'ASRock' || $board === 'ASRockRack'){
     //if board is ASRock
     //check number of physical CPUs
     if( $override == 'disable')
@@ -26,7 +26,7 @@ if($board !== 'Supermicro'){
     $board_file = "$plg_path/board.json";
     $board_file_status = (file_exists($board_file));
     $board_json = ($board_file_status) ? json_decode((file_get_contents($board_file)), true) : [];
-}else{
+}elseif($board === 'Supermicro'){
     //if board is Supermicro
     $cmd_count = 0;
     $board_model = ( $override == 'disable') ? intval(shell_exec("dmidecode -qt2|awk -F: '/^\tProduct Name:/{p=\$2} END{print substr(p,3,1)}'")) : $omodel;
@@ -55,6 +55,17 @@ if($board !== 'Supermicro'){
             ]
         ];
     }
+}elseif($board === 'Dell'){
+    $board_json = [ 'Dell' =>
+            [ 'raw'    => '00 30 30 02 FF',
+              'auto'   => '00 30 30 01 01',
+              'manual' => '00 30 30 01 00',
+              'full'   => '00 30 30 02 FF 64',
+              'fans'   => [
+                'FAN1234' => '00',
+              ]
+        ]
+    ];
 }
 
 // fan network options

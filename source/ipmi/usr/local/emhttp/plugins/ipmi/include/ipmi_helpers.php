@@ -302,7 +302,7 @@ function get_fanctrl_options(){
             if ($fan['Type'] === 'Fan'){
                 $name    = htmlspecialchars($fan['Name']);
                 $display = $name;
-                if($board ==='Supermicro'){
+                if($board === 'Supermicro'){
                     $syscpu = false;
                     if(strpos ($name, 'SYS_FAN') !== false){
                         $syscpu = true;
@@ -334,6 +334,10 @@ function get_fanctrl_options(){
                             continue;
                         }
                     }
+                }
+                if($board ==='Dell'){
+                    $name = 'FAN1234';
+                    $display = 'FAN1234';
                 }
                 $tempid  = 'TEMP_'.$name;
                 $temp    = $fansensors[$fancfg[$tempid]];
