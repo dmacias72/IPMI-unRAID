@@ -120,7 +120,7 @@ function eventArray(){
             var Host = (typeof event.IP === 'undefined') ? '' : event.IP; // check if network connection was used
             $('#tblEvent tbody')
             .append('<tr id="'+i+'">'+
-            '<td title="'+ event.State +'"><img src="/plugins/dynamix/images/'+ data.State[event.State] +'-on.png"/></td>'+ //state
+            '<td title="'+ event.State +'"><i class="fa fa-circle orb '+ data.State[event.State] +'-orb middle"></td>'+ //state
             '<td class="network">'+ Host +'</td>'+ //event host ip address
             '<td>'+ event.ID    +'</td>'+ //event id
             '<td>'+ event.Date  +'</td>'+ //time stamp
