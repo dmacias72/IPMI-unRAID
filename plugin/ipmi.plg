@@ -3,7 +3,7 @@
 <!DOCTYPE PLUGIN [
 <!ENTITY name      "ipmi">
 <!ENTITY author    "dmacias72">
-<!ENTITY version   "2019.02.08">
+<!ENTITY version   "2020.08.24">
 <!ENTITY launch    "Settings/IPMI">
 <!ENTITY gitURL    "https://raw.githubusercontent.com/&author;/IPMI-unRAID/master">
 <!ENTITY pluginURL "&gitURL;/plugin/&name;.plg">
@@ -17,6 +17,11 @@
 
 <CHANGES>
 ##&name;
+###2020.08.24
+- fix hard drive spin down by using unraid hdd temps
+- update dashboard to match new ui
+- fix missing sensor icons
+- update to freeipmi 1.6.4
 ###2019.02.08
 - add remaining fa icons
 ###2019.01.25
@@ -310,8 +315,12 @@
 <!--
 This plugin uses freeipmi to display sensor readings
 -->
+<FILE Name="&plgPATH;/freeipmi-1.6.4-x86_64-1.txz" Min="6.8" Run="/sbin/upgradepkg --install-new">
+<URL>&pkgURL;/freeipmi-1.6.4-x86_64-1.txz</URL>
+<MD5>0ab78ccccc1b742aa80e834946651ad5</MD5>
+</FILE>
 
-<FILE Name="&plgPATH;/freeipmi-1.5.7-x86_64-2.txz" Min="6.2" Run="/sbin/upgradepkg --install-new">
+<FILE Name="&plgPATH;/freeipmi-1.5.7-x86_64-2.txz" Min="6.2" Max="6.7.99" Run="/sbin/upgradepkg --install-new">
 <URL>&pkgURL;/freeipmi-1.5.7-x86_64-2.txz</URL>
 <MD5>66a3efd19bd7cc53ef07c14a77431fe7</MD5>
 </FILE>
@@ -491,7 +500,7 @@ else
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been installed."
-echo " Copyright 2015-2019, &author;"
+echo " Copyright 2015-2020, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
@@ -532,7 +541,7 @@ done
 echo ""
 echo "-----------------------------------------------------------"
 echo " &name; has been removed."
-echo " Copyright 2015-2019, &author;"
+echo " Copyright 2015-2020, &author;"
 echo " Version: &version;"
 echo "-----------------------------------------------------------"
 echo ""
