@@ -1,25 +1,15 @@
-Menu="Dashboard:3"
-Title="IPMI Summary"
+Menu="Dashboard"
 Cond="parse_ini_file('/boot/config/plugins/ipmi/ipmi.cfg')['DASH'] == 'enable'"
 ---
-<link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/ipmi.css');?>">
-<link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/tablesorter.css');?>">
-<link type="text/css" rel="stylesheet" href="<?=autov('/plugins/ipmi/css/tablesorter-'.(($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'white' : 'black').'.css');?>">
-<style>
-table.ipmi thead tr th{width:16.6%;padding-left:10px;}
-table.ipmi tbody tr td{padding-left:10px;font-weight:bold;}
-table.tablesorter tbody tr:nth-child(odd) {
-    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'F0F0F0' : '212421';?>;
-}
-table.tablesorter tbody tr:nth-child(even) {
-    background-color: #<?=($display['theme'] == 'white' || $display['theme'] == 'azure') ? 'e4e2e4' : '1b1d1b';?>;
-}
-</style>
-
-<table class="tablesorter shift ipmi" id="tblIPMIDash">
-<thead><tr><th>Status</th><th class="network sorter-ipv4Address">IP Address</th><th>Sensor</th><th>Reading</th></tr></thead>
-<tbody></tbody>
+<table class="share_status dashboard box1 ui-sortable" id="IPMIDash">
+<thead class="sortable ui-sortable-handle">
+<tr><td></td><td colspan="4" class="next">IPMI<i class="fa fa-fw chevron mt0 fa-chevron-down" id="extra_view" onclick="toggleChevron(&quot;extra_view&quot;,0)"></i><span class="info"></span></td><td></td></tr>
+<tr class="my_view"><td></td><td id="extra_info" colspan="4"></td><td></td></tr>
+<tr class="extra_view" id="extra_view_on" ><td></td><td>Status</td><td class="network sorter-ipv4Address">IP Address</td><td>Sensor</td><td>Reading</td><td></td></tr>
+</thead>
+<tbody class="extra_view sortable ui-sortable-handle flat" id="tblIPMIDash" style="display: none;"></tbody>
 </table>
+
 
 <?if (floatval($var['version']) < 6.4):?>
     <script src="<?=autov('/plugins/ipmi/js/jquery.tablesorter.combined.min.js');?>"></script>
@@ -27,13 +17,6 @@ table.tablesorter tbody tr:nth-child(even) {
 
 <script>
 $(function(){
-    $('#tblIPMIDash').tablesorter({
-        sortReset: true,
-        sortRestart : true,
-        sortInitialOrder: 'asc',
-        widgets: ['saveSort']
-    });
-
     sensorArray(false);
     setTimeout(sensorRefresh, 20000);
 
@@ -113,12 +96,12 @@ function sensorArray(Refresh){
             } else {
                 Host = (typeof sensor.IP == 'undefined') ? '' : sensor.IP; // check for ip
 
-            $('#tblIPMIDash tbody')
-            .append("<tr id='"+i+"'>"+
-            '<td title="'+sensor.State+'"><img src="/plugins/dynamix/images/'+ data.State[sensor.State] +'-on.png"/></td>'+ //state
+            $('#tblIPMIDash')
+            .append("<tr id='"+i+"'><td></td>"+
+            '<td title="'+sensor.State+'"><i class="fa fa-circle orb '+ data.State[sensor.State] +'-orb middle"></td>'+ //state
             '<td class="network">'+Host+'</td>'+ // sensor host ip address
             '<td>'+sensor.Name+'</td>'+ //sensor name
-            '<td class="reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></td>'+ //sensor reading
+            '<td class="reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></td><td></td>'+ //sensor reading
             '</tr>');
             }
         });
@@ -128,10 +111,6 @@ function sensorArray(Refresh){
             else
                 $('.network').hide();
 
-            // restore filters and update table for tablesorter
-            var lastSearch = $('#tblIPMIDash')[0].config.lastSearch;
-            $('#tblIPMIDash').trigger('update');
-            $('#tblIPMIDash').trigger('search', [lastSearch]);
         }
     });
 };
