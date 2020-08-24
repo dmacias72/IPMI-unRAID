@@ -241,14 +241,31 @@ function fullfan() {
 }
 
 /* get highest temp of hard drives */
-function get_highest_temp($hdds){
+function get_highest_temp(){
     global $hddignore;
     $ignore = array_flip(explode(',', $hddignore));
+
+    //get UA devices
+    $ua_json = '/var/state/unassigned.devices/hdd_temp.json';
+    $ua_devs = file_exists($ua_json) ? json_decode(file_get_contents($ua_json), true) : [];
+
+    //get all hard drives
+    $hdds = array_merge(parse_ini_file('/var/local/emhttp/disks.ini',true), parse_ini_file('/var/local/emhttp/devs.ini',true));
+    unset($hdds['flash']);
+
     $highest_temp = 0;
-    foreach ($hdds as $serial => $hdd) {
-        if (!array_key_exists($serial, $ignore)) {
+    foreach ($hdds as $hdd) {
+
+        if (!array_key_exists($hdd['id'], $ignore)) {
             $temp = 0;
-            $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A -n standby /dev/${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
+            if(array_key_exists('temp', $hdd))
+                $temp = $hdd['temp'];
+            elseif(!empty($ua_devs)){
+                $ua_key = "/dev/".$hdd['device'];
+                $temp = (array_key_exists($ua_key, $ua_devs)) ? $ua_devs[$ua_key]['temp'] : 0;
+            }else
+                $temp = preg_replace("/\s+/", "", shell_exec("smartctl -A -n standby /dev/${hdd} 2>/dev/null| grep -m 1 -i Temperature_Cel | awk '{print $10}'"));
+
             $highest_temp = ($temp > $highest_temp) ? $temp : $highest_temp;
         }
     }
@@ -297,8 +314,7 @@ function ipmi_fan_sensors() {
 ##############################
 
 $MD5          = md5_file($fancfg_file);
-$hdds         = get_all_hdds();
-$hdd_temp     = get_highest_temp($hdds);
+$hdd_temp     = get_highest_temp();
 $sensors      = ipmi_fan_sensors();
 $ipmipoll     = ($fanpoll <= $hddpoll) ? $fanpoll : $hddpoll;
 $fan_count    = $fanpoll * 10;
@@ -318,8 +334,7 @@ while(TRUE){ while(TRUE){
     /* Refresh hdds and hdd temp if hdd poll time is expired */
     if ($hdd_count <= 0) {
         $hdd_count = $hddpoll * 10;
-        $hdds      = get_all_hdds();
-        $hdd_temp  = get_highest_temp($hdds);
+        $hdd_temp  = get_highest_temp();
         $sensors['99']['Reading'] = $hdd_temp;
     }
     /* Get sensor info if fan sensor poll time is expired */
