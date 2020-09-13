@@ -1,22 +1,13 @@
 Menu="Dashboard"
 Cond="parse_ini_file('/boot/config/plugins/ipmi/ipmi.cfg')['DASH'] == 'enable'"
 ---
-<table class="share_status dashboard box1 ui-sortable" id="IPMIDash">
-<thead class="sortable ui-sortable-handle">
-<tr><td></td><td colspan="4" class="next">IPMI<i class="fa fa-fw chevron mt0 fa-chevron-down" id="extra_view" onclick="toggleChevron(&quot;extra_view&quot;,0)"></i><span class="info"></span></td><td></td></tr>
-<tr class="my_view"><td></td><td id="extra_info" colspan="4"></td><td></td></tr>
-<tr class="extra_view" id="extra_view_on" ><td></td><td>Status</td><td class="network sorter-ipv4Address">IP Address</td><td>Sensor</td><td>Reading</td><td></td></tr>
-</thead>
-<tbody class="extra_view sortable ui-sortable-handle flat" id="tblIPMIDash" style="display: none;"></tbody>
-</table>
 
-
-<?if (floatval($var['version']) < 6.4):?>
-    <script src="<?=autov('/plugins/ipmi/js/jquery.tablesorter.combined.min.js');?>"></script>
-<?endif;?>
 
 <script>
 $(function(){
+    $('#db-box1')
+    .append('<tbody id="tblIPMIDash" class="sortable ui-sortable-handle"><tr><td></td><td colspan="3" class="next"><i class="icon-notifications"></i><div class="section">IPMI<br><span id="ipmi-temp"></span><br><br></div><i class="fa fa-fw chevron fa-chevron-up" id="ipmi_view" onclick="toggleChevron(&quot;ipmi_view&quot;,0)"></i><a href="/Settings/IPMI/" title="Go to IPMI settings"><i class="fa fa-fw fa-cog chevron"></i></a></td><td></td></tr><tr class="ipmi_view" style="display: none;"><td></td><td>Status</td><td>Sensor</td><td>Reading</td><td></td></tr></tbody>');
+
     sensorArray(false);
     setTimeout(sensorRefresh, 20000);
 
@@ -94,24 +85,16 @@ function sensorArray(Refresh){
             if(Refresh) {
                 $('#'+i+' td.reading').html('<font color="'+ Color + '">'+ Reading + Units +'</font>');
             } else {
-                Host = (typeof sensor.IP == 'undefined') ? '' : sensor.IP; // check for ip
 
             $('#tblIPMIDash')
-            .append("<tr id='"+i+"'><td></td>"+
+            .append("<tr class='ipmi_view' style='display: none;' id='"+i+"'><td></td>"+
             '<td title="'+sensor.State+'"><i class="fa fa-circle orb '+ data.State[sensor.State] +'-orb middle"></td>'+ //state
-            '<td class="network">'+Host+'</td>'+ // sensor host ip address
             '<td>'+sensor.Name+'</td>'+ //sensor name
             '<td class="reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></td><td></td>'+ //sensor reading
             '</tr>');
             }
         });
-        if (!Refresh) {
-            if(data.Network)
-                $('.network').show();
-            else
-                $('.network').hide();
-
-        }
+        toggleView('ipmi_view',true);
     });
 };
 
