@@ -56,7 +56,6 @@ function sensorArray(Refresh){
                         Color = "red";
 
                 }else if(sensor.Type == 'Temperature'){
-                    Units += '&deg;';
 
                     // if temperature is greater than upper non-critical show critical
                     if(Reading > UpperNC)
@@ -65,6 +64,13 @@ function sensorArray(Refresh){
                     // if temperature is greater than upper critical show non-recoverable
                     if(Reading > UpperC)
                         Color = 'red';
+
+                    if('<?=$display['unit']?>' === 'F') {
+                        sensor.Units = 'F';
+                        Reading = Math.round(9/5 * Reading + 32);
+                    }
+                    Units += '&deg;';
+
                 }
                 Units += sensor.Units;
             }else {
