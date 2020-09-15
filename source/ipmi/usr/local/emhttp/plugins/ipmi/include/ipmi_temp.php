@@ -64,5 +64,5 @@ if (!empty($disp_sensors)){
     }
 }
 if ($displays)
-    echo "<span id='impitemps' style='margin-right:16px;font-weight: bold;cursor: pointer;'>".implode('&nbsp;', $displays)."</span>";
+    echo "<span id='ipmitemps' style='margin-right:16px;font-weight: bold;cursor: pointer;'>".implode('&nbsp;', $displays)."</span>";
 ?>
