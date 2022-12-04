@@ -67,7 +67,8 @@ function ipmi_sensors($ignore=null) {
     $ignored = (empty($ignore)) ? '' : '-R '.escapeshellarg($ignore);
     $cmd = '/usr/sbin/ipmi-sensors --output-sensor-thresholds --comma-separated-output '.
         "--output-sensor-state --no-header-output --interpret-oem-data $netopts $ignored 2>/dev/null";
-    exec($cmd, $output, $return_var=null);
+    $return_var=null ;    
+    exec($cmd, $output, $return_var);
 
     // return empty array if error
     if ($return_var)
@@ -128,7 +129,8 @@ function ipmi_events($archive=null){
     } else {
         $cmd = '/usr/sbin/ipmi-sel --comma-separated-output --output-event-state --no-header-output '.
             "--interpret-oem-data --output-oem-event-strings $netopts 2>/dev/null";
-        exec($cmd, $output, $return_var=null);
+        $return_var=null ;
+        exec($cmd, $output, $return_var);
     }
 
     // return empty array if error
@@ -257,7 +259,8 @@ function ipmi_fan_sensors($ignore=null) {
 
     $ignored = (empty($ignore)) ? '' : "-R $ignore";
     $cmd = "/usr/sbin/ipmi-sensors --comma-separated-output --no-header-output --interpret-oem-data $fanopts $ignored 2>/dev/null";
-    exec($cmd, $output, $return_var=null);
+    $return_var=null ;
+    exec($cmd, $output, $return_var);
 
     if ($return_var)
         return []; // return empty array if error

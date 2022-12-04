@@ -23,6 +23,10 @@ $devs      = isset($cfg['DEVS'])      ? htmlspecialchars($cfg['DEVS'])      : 'e
 $ipmi = (file_exists('/dev/ipmi0') || file_exists('/dev/ipmi/0') || file_exists('/dev/ipmidev/0')); // Thanks to ljm42
 
 /* options for network access */
+
+$password_decode = base64_decode($password) ; 
+
+$password_decode = escapeshellarg($password) ;
 $netopts = ($netsvc === 'enable') ? '--always-prefix -h '.escapeshellarg($ipaddr).' -u '.escapeshellarg($user).' -p '.
-    escapeshellarg(base64_decode($password))." --session-timeout=5000 --retransmission-timeout=1000" : '';
+    $password_decode." --session-timeout=5000 --retransmission-timeout=1000" : '';
 ?>

@@ -94,7 +94,8 @@ function ipmi_sensors_fans() {
         return [];
 
     $cmd = "/usr/sbin/ipmi-sensors --comma-separated-output --no-header-output $fanopts 2>/dev/null";
-    exec($cmd, $output, $return_var=null);
+    $return_var=null ;
+    exec($cmd, $output, $return_var);
 
     // return empty array if error
     if($return_var)
