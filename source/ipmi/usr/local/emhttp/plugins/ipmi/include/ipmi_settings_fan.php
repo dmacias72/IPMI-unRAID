@@ -68,7 +68,7 @@ if($board === 'ASRock' || $board === 'ASRockRack'){
     ];
 }
 
-// fan network options
+// fan network options base64_decode(
 $fanopts = ($netsvc === 'enable') ? '-h '.escapeshellarg($fanip).' -u '.escapeshellarg($user).' -p '.
-    escapeshellarg(base64_decode($password)).' --session-timeout=5000 --retransmission-timeout=1000' : '';
+    escapeshellarg($password).' --session-timeout=5000 --retransmission-timeout=1000' : '';
 ?>

@@ -174,9 +174,15 @@ Cond="exec(\"grep -o '^OVERRIDE=.enable' /boot/config/plugins/ipmi/ipmi.cfg 2>/d
     <tbody>
 <?
 $log = '/var/log/ipmifan';
+$version = parse_ini_file("/etc/unraid-version");
 if(is_file($log)){
-    echo "<tr><td><a class='fanlog-a' id='fanlog-file' title='$log' onclick=\"openWindow('/webGui/scripts/tail_log&arg1=ipmifan','Fan Control Log Information',600,900);\">$log</a></td><td id='fanlog-size'>"
-    .filesize($log)."</td><td><a class='fanlog-a' id='fanlog-clear' ><i class='fa fa-trash' title='clear fan log'></i></a></td></tr>";
+    if (version_compare($version['version'],"6.9.9", ">")) {	
+		echo "<tr><td><a class='fanlog-a' id='fanlog-file' title='$log' onclick=\"openTerminal('log','ipmifan','ipmifan')\">$log</a></td><td id='fanlog-size'>"
+        .filesize($log)."</td><td><a class='fanlog-a' id='fanlog-clear' ><i class='fa fa-trash' title='clear fan log'></i></a></td></tr>";
+	} else {
+		echo "<tr><td><a class='fanlog-a' id='fanlog-file' title='$log' onclick=\"openWindow('/webGui/scripts/tail_log&arg1=ipmifan','Fan Control Log Information',600,900);\">$log</a></td><td id='fanlog-size'>"
+        .filesize($log)."</td><td><a class='fanlog-a' id='fanlog-clear' ><i class='fa fa-trash' title='clear fan log'></i></a></td></tr>";
+    }
 }
 ?>
     </tbody>
