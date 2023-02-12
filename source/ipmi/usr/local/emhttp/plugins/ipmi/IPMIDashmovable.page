@@ -1,0 +1,142 @@
+Menu="Dashboard:0"
+Cond="parse_ini_file('/boot/config/plugins/ipmi/ipmi.cfg')['DASH'] == 'enable' && version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.12.0-beta6', '>')"
+---
+<?PHP
+/*
+  Create a .page file based on this example file and store the file in your plugin directory
+  Make sure this file has a unique name not used by the GUI or other plugins
+
+  This is an example configuration which is used to add custom tiles to the dashboard
+  Placement of one or more custom tiles is done under column1, column2 or column3
+  A column can have as many new custom tiles as needed, each custom tile is a <tbody> element
+  Each tile must have these two properties set:
+
+  "_(description)_"    - this is the (translated) description shown in the Content Manager window
+  "_(Tile tile)_"      - this is the (translated) title of the tile shown in bold on the screen
+
+  The content of the tile can be any text as required by your plugin, this content is placed inside the <td> element
+  A number of predefined spans are available to make fields of certain widths and maybe used to follow the GUI alignment
+  These are:
+  <span class="w18">
+  <span class="w26">
+  <span class="w36">
+  <span class="w44">
+  <span class="w72">
+*/
+
+$pluginname = "IPMI"; // substitute this entry with the name of your plugin
+
+$mytiles[$pluginname]['column2'] =
+<<<EOT
+<tbody id="tblIPMIDash" title="_(IPMI)_">
+<tr><td><i class='icon-notifications f32'></i>
+<div class='section'>_(IPMI)_<br><span><i class='ups fa fa-line-chart'></i><span id="ipmi-temp"></span></span><br><br></div>
+<a href="/Dashboard/Settings/IPMI/" title="_(Go to IPMI settings)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
+<tr class="header"><td><span class="w18">_(Status)_</span><span class="w36">_(Sensor)_</span><span class="w36">_(Reading)_</span></td></tr>
+</tbody>
+EOT;
+?>
+
+<script>
+
+</script>
+
+
+<script>
+$(function(){
+    sensorArray(false);
+    setTimeout(sensorRefresh, 20000);
+
+});
+
+/* sensor refresh */
+function sensorRefresh() {
+  sensorArray(true);
+   setTimeout(sensorRefresh, 20000);
+};
+
+/* load ipmi sensor table */
+function sensorArray(Refresh){
+    $.getJSON('/plugins/ipmi/include/ipmi_helpers.php', {action:'ipmidash'}, function(data) {
+        $.each(data.Sensors, function (i, sensor) {
+            var LowerNR = parseFloat(sensor.LowerNR);
+            var LowerC  = parseFloat(sensor.LowerC);
+            var LowerNC = parseFloat(sensor.LowerNC);
+            var UpperNC = parseFloat(sensor.UpperNC);
+            var UpperC  = parseFloat(sensor.UpperC);
+            var UpperNR = parseFloat(sensor.UpperNR);
+            var Color   = 'green';
+            var Units   = '';
+
+            // only process sensor if reading is valid
+            if(sensor.Reading != 'N/A'){
+                var Reading = parseFloat(sensor.Reading);
+                if(sensor.Type == 'Voltage'){
+                    Units += ' ';
+
+                    // if voltage is less than lower non-critical
+                    // or voltage is greater than upper non-critical show critical
+                    if(Reading < LowerNC && Reading > UpperNC)
+                        Color = 'orange';
+
+                    // if voltage is less than lower critical
+                    // or voltage is greater than upper critical show non-recoverable
+                    if(Reading < LowerC || Reading > UpperC)
+                        Color = 'red';
+
+                }else if(sensor.Type == 'Fan'){
+                    Units += ' ';
+
+                    // if Fan RPMs are less than lower non-critical
+                    if(Reading < LowerNC || Reading < LowerC || Reading < LowerNR)
+                        Color = "red";
+
+                }else if(sensor.Type == 'Temperature'){
+
+                    // if temperature is greater than upper non-critical show critical
+                    if(Reading > UpperNC)
+                        Color = 'orange';
+
+                    // if temperature is greater than upper critical show non-recoverable
+                    if(Reading > UpperC)
+                        Color = 'red';
+
+                    if('<?=$display['unit']?>' === 'F') {
+                        sensor.Units = 'F';
+                        Reading = Math.round(9/5 * Reading + 32);
+                    }
+                    Units += '&deg;';
+
+                }
+                Units += sensor.Units;
+            }else {
+                Color = 'blue'; // reading equals N/A
+                if(sensor.Type == 'OEM Reserved'){
+                    var Reading = sensor.Event;
+                    if(Reading == 'Low')
+                        Color = 'green';
+                    if(Reading == 'Medium')
+                        Color = 'orange';
+                    if(Reading == 'High')
+                        Color = 'red';
+                }else{
+                    var Reading = sensor.Reading;
+                }
+            }
+
+            if(Refresh) {
+                $('#'+i).html('<font color="'+ Color + '">'+ Reading + Units +'</font>');
+            } else {
+
+            $('#tblIPMIDash')
+            .append("<tr><td>"+
+            '<span class="w18"><i class="fa fa-circle orb '+ data.State[sensor.State] +'-orb middle"></i></span>'+ //state
+            '<span class="w36">'+sensor.Name+'</span>'+ //sensor name
+            '<span id="'+i+'" class="w36 reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></span>'+ //sensor reading
+            '</td></tr>');
+            }
+        });
+    });
+};
+
+</script>
