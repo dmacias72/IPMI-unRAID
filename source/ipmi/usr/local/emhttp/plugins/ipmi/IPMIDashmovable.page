@@ -1,13 +1,49 @@
-Menu="Dashboard"
-Cond="parse_ini_file('/boot/config/plugins/ipmi/ipmi.cfg')['DASH'] == 'enable' && version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.12.0-beta6', '<')"
+Menu="Dashboard:0"
+Cond="parse_ini_file('/boot/config/plugins/ipmi/ipmi.cfg')['DASH'] == 'enable' && version_compare(parse_ini_file('/etc/unraid-version')['version'],'6.12.0-beta6', '>')"
 ---
+<?PHP
+/*
+  Create a .page file based on this example file and store the file in your plugin directory
+  Make sure this file has a unique name not used by the GUI or other plugins
+
+  This is an example configuration which is used to add custom tiles to the dashboard
+  Placement of one or more custom tiles is done under column1, column2 or column3
+  A column can have as many new custom tiles as needed, each custom tile is a <tbody> element
+  Each tile must have these two properties set:
+
+  "_(description)_"    - this is the (translated) description shown in the Content Manager window
+  "_(Tile tile)_"      - this is the (translated) title of the tile shown in bold on the screen
+
+  The content of the tile can be any text as required by your plugin, this content is placed inside the <td> element
+  A number of predefined spans are available to make fields of certain widths and maybe used to follow the GUI alignment
+  These are:
+  <span class="w18">
+  <span class="w26">
+  <span class="w36">
+  <span class="w44">
+  <span class="w72">
+*/
+
+$pluginname = "IPMI"; // substitute this entry with the name of your plugin
+
+$mytiles[$pluginname]['column2'] =
+<<<EOT
+<tbody id="tblIPMIDash" title="_(IPMI)_">
+<tr><td><i class='icon-notifications f32'></i>
+<div class='section'>_(IPMI)_<br><span><i class='ups fa fa-line-chart'></i><span id="ipmi-temp"></span></span><br><br></div>
+<a href="/Dashboard/Settings/IPMI/" title="_(Go to IPMI settings)_"><i class="fa fa-fw fa-cog control"></i></a></td></tr>
+<tr class="header"><td><span class="w18">_(Status)_</span><span class="w36">_(Sensor)_</span><span class="w36">_(Reading)_</span></td></tr>
+</tbody>
+EOT;
+?>
+
+<script>
+
+</script>
 
 
 <script>
 $(function(){
-    $('#db-box1')
-    .append('<tbody id="tblIPMIDash" class="sortable ui-sortable-handle"><tr><td></td><td colspan="3" class="next"><i class="icon-notifications"></i><div class="section">IPMI<br><span id="ipmi-temp"></span><br><br></div><i class="fa fa-fw chevron fa-chevron-up" id="ipmi_view" onclick="toggleChevron(&quot;ipmi_view&quot;,0)"></i><a href="/Settings/IPMI/" title="Go to IPMI settings"><i class="fa fa-fw fa-cog chevron"></i></a></td><td></td></tr><tr class="ipmi_view" style="display: none;"><td></td><td>Status</td><td>Sensor</td><td>Reading</td><td></td></tr></tbody>');
-
     sensorArray(false);
     setTimeout(sensorRefresh, 20000);
 
@@ -89,18 +125,17 @@ function sensorArray(Refresh){
             }
 
             if(Refresh) {
-                $('#'+i+' td.reading').html('<font color="'+ Color + '">'+ Reading + Units +'</font>');
+                $('#'+i).html('<font color="'+ Color + '">'+ Reading + Units +'</font>');
             } else {
 
             $('#tblIPMIDash')
-            .append("<tr class='ipmi_view' style='display: none;' id='"+i+"'><td></td>"+
-            '<td title="'+sensor.State+'"><i class="fa fa-circle orb '+ data.State[sensor.State] +'-orb middle"></td>'+ //state
-            '<td>'+sensor.Name+'</td>'+ //sensor name
-            '<td class="reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></td><td></td>'+ //sensor reading
-            '</tr>');
+            .append("<tr><td>"+
+            '<span class="w18"><i class="fa fa-circle orb '+ data.State[sensor.State] +'-orb middle"></i></span>'+ //state
+            '<span class="w36">'+sensor.Name+'</span>'+ //sensor name
+            '<span id="'+i+'" class="w36 reading">'+ '<font color="'+ Color + '">'+ Reading + Units +'</font></span>'+ //sensor reading
+            '</td></tr>');
             }
         });
-        toggleView('ipmi_view',true);
     });
 };
 

@@ -61,8 +61,8 @@ if($commit && !empty($config)){
     exec($cmd, $output, $return_var);
 }else{
     $cmd .= "--checkout $netopts 2>/dev/null";
-
-    exec($cmd, $output, $return_var=null);
+    $return_var=null ;
+    exec($cmd, $output, $return_var);
 }
 
 

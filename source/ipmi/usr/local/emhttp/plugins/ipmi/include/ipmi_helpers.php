@@ -191,7 +191,7 @@ function ipmi_get_options($selected=null){
     foreach($sensors as $id => $sensor){
         $name = $sensor['Name'];
         $reading  = ($sensor['Type'] === 'OEM Reserved') ? $sensor['Event'] : $sensor['Reading'];
-        $ip       = (empty($sensor['IP'])) ? '' : " (${sensor['IP']})";
+        $ip       = (empty($sensor['IP'])) ? '' : " ({$sensor['IP']})";
         $units    = is_numeric($reading) ? $sensor['Units'] : '';
         $options .= "<option value='$id'";
 
@@ -217,14 +217,14 @@ function ipmi_get_enabled($ignore){
     foreach($allsensors as $sensor){
         $id       = $sensor['ID'];
         $reading  = $sensor['Reading'];
-        $units    = ($reading === 'N/A') ? '' : " ${sensor['Units']}";
-        $ip       = (empty($netopts))    ? '' : " ${sensor['IP']}";
+        $units    = ($reading === 'N/A') ? '' : " {$sensor['Units']}";
+        $ip       = (empty($netopts))    ? '' : " {$sensor['IP']}";
         $options .= "<option value='$id'";
 
         // search for id in array to not select ignored sensors
         $options .= array_key_exists($id, $ignored) ?  '' : " selected";
 
-        $options .= ">${sensor['Name']}$ip - $reading$units</option>";
+        $options .= ">{$sensor['Name']}$ip - $reading$units</option>";
 
     }
     return $options;
@@ -367,7 +367,7 @@ function get_fanctrl_options(){
                 if($board_file_status){
                     if(!array_key_exists($name, $board_json[$board]['fans']))
                         if ($cmd_count !== 0){
-                            if(!array_key_exists($name, $board_json["${board}1"]['fans']))
+                            if(!array_key_exists($name, $board_json["{$board}1"]['fans']))
                                 echo $noconfig;
                         }else{
                             echo $noconfig;
